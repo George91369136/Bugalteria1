@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Altbody - Бронирование массажных кабинетов</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    #root {
+      min-height: 100vh;
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-size: 18px;
+      color: #8892b0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4A90E2;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #8892b0;
+      font-size: 14px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input:focus {
+      border-color: #4A90E2;
+    }
+    .input::placeholder {
+      color: #6c7293;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #4A90E2;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #357abd;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      margin-top: 12px;
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: none;
+      border-radius: 12px;
+      color: #8892b0;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      background: #4A90E2;
+      color: #fff;
+    }
+    .nav {
+      display: flex;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 0;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #6c7293;
+      text-decoration: none;
+      font-size: 12px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+    .nav-item.active {
+      color: #4A90E2;
+    }
+    .nav-icon {
+      font-size: 20px;
+    }
+    .room-card {
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .room-card:hover {
+      transform: translateY(-2px);
+    }
+    .room-1 { background: linear-gradient(135deg, #4A90E2 0%, #357abd 100%); }
+    .room-2 { background: linear-gradient(135deg, #9B59B6 0%, #8e44ad 100%); }
+    .room-3 { background: linear-gradient(135deg, #27AE60 0%, #229954 100%); }
+    .room-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .room-status {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .time-slot {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .time-slot:hover:not(.disabled):not(.selected) {
+      background: rgba(74, 144, 226, 0.2);
+      border-color: #4A90E2;
+    }
+    .time-slot.selected {
+      background: #4A90E2;
+      border-color: #4A90E2;
+    }
+    .time-slot.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .price-info {
+      text-align: center;
+      padding: 16px;
+      background: rgba(74, 144, 226, 0.1);
+      border-radius: 12px;
+      margin: 16px 0;
+    }
+    .price {
+      font-size: 24px;
+      font-weight: 700;
+      color: #4A90E2;
+    }
+    .message-list {
+      padding-bottom: 80px;
+    }
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+    .message.sent {
+      background: #4A90E2;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+    .message.received {
+      background: rgba(255, 255, 255, 0.1);
+      border-bottom-left-radius: 4px;
+    }
+    .message-input-container {
+      position: fixed;
+      bottom: 70px;
+      left: 0;
+      right: 0;
+      padding: 12px 20px;
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      gap: 12px;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .message-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+    }
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #4A90E2;
+      border: none;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .checkbox-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #8892b0;
+    }
+    .checkbox {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+    .booking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      margin-bottom: 12px;
+    }
+    .booking-info h4 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .booking-info p {
+      font-size: 13px;
+      color: #8892b0;
+    }
+    .cancel-btn {
+      padding: 8px 16px;
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #4A90E2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .chat-info {
+      flex: 1;
+    }
+    .chat-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .chat-preview {
+      font-size: 13px;
+      color: #8892b0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .unread-badge {
+      background: #e74c3c;
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c7293;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      color: #4A90E2;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .date-picker {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin-bottom: 16px;
+    }
+    .date-item {
+      min-width: 60px;
+      padding: 12px 8px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .date-item.selected {
+      background: #4A90E2;
+      border-color: #4A90E2;
+    }
+    .date-day {
+      font-size: 12px;
+      color: #8892b0;
+      margin-bottom: 4px;
+    }
+    .date-item.selected .date-day {
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .date-num {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .profile-header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #4A90E2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 auto 16px;
+    }
+    .profile-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .profile-phone {
+      color: #8892b0;
+    }
+    .logout-btn {
+      margin-top: 20px;
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"><div class="loading">Загрузка...</div></div>
+  <script type="text/babel">
+    const { useState, useEffect, createContext, useContext, useCallback } = React;
+
+    const API_BASE = '';
+
+    const AuthContext = createContext(null);
+
+    function useAuth() {
+      return useContext(AuthContext);
+    }
+
+    function AuthProvider({ children }) {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        const saved = localStorage.getItem('altbody_user');
+        if (saved) {
+          setUser(JSON.parse(saved));
+        }
+        setLoading(false);
+      }, []);
+
+      const login = (userData) => {
+        setUser(userData);
+        localStorage.setItem('altbody_user', JSON.stringify(userData));
+      };
+
+      const logout = () => {
+        setUser(null);
+        localStorage.removeItem('altbody_user');
+      };
+
+      return (
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+          {children}
+        </AuthContext.Provider>
+      );
+    }
+
+    function AuthScreen() {
+      const [isRegister, setIsRegister] = useState(false);
+      const [phone, setPhone] = useState('');
+      const [name, setName] = useState('');
+      const [password, setPassword] = useState('');
+      const [consent, setConsent] = useState(false);
+      const [error, setError] = useState('');
+      const [isLoading, setIsLoading] = useState(false);
+      const { login } = useAuth();
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        if (!phone || !password) {
+          setError('Введите телефон и пароль');
+          return;
+        }
+        setIsLoading(true);
+        setError('');
+
+        try {
+          const res = await fetch(`${API_BASE}/api/users/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, password })
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            login({
+              id: data.id,
+              name: data.name,
+              phone: data.phone,
+              role: 'client'
+            });
+          } else {
+            setError(data.error || 'Неверный телефон или пароль');
+          }
+        } catch (err) {
+          setError('Ошибка подключения к серверу');
+        }
+        setIsLoading(false);
+      };
+
+      const handleRegister = async (e) => {
+        e.preventDefault();
+        if (!consent) {
+          setError('Необходимо согласие на обработку данных');
+          return;
+        }
+        if (!phone || !name || !password) {
+          setError('Заполните все поля');
+          return;
+        }
+        if (password.length < 4) {
+          setError('Пароль должен быть не менее 4 символов');
+          return;
+        }
+        const phoneDigits = phone.replace(/\D/g, '');
+        if (phoneDigits.length < 10) {
+          setError('Введите корректный номер телефона (минимум 10 цифр)');
+          return;
+        }
+        setIsLoading(true);
+        setError('');
+
+        try {
+          const res = await fetch(`${API_BASE}/api/users/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, password })
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            login({
+              id: data.id,
+              name: data.name,
+              phone: data.phone,
+              role: 'client'
+            });
+          } else {
+            setError(data.error || 'Ошибка регистрации');
+          }
+        } catch (err) {
+          setError('Ошибка подключения к серверу');
+        }
+        setIsLoading(false);
+      };
+
+      return (
+        <div className="container">
+          <div className="header">
+            <div className="logo">Altbody</div>
+            <div className="subtitle">Бронирование массажных кабинетов</div>
+          </div>
+
+          <div className="tabs">
+            <button className={`tab ${!isRegister ? 'active' : ''}`} onClick={() => { setIsRegister(false); setError(''); }}>
+              Войти
+            </button>
+            <button className={`tab ${isRegister ? 'active' : ''}`} onClick={() => { setIsRegister(true); setError(''); }}>
+              Регистрация
+            </button>
+          </div>
+
+          <div className="card">
+            {!isRegister ? (
+              <form onSubmit={handleLogin}>
+                <input
+                  type="tel"
+                  className="input"
+                  placeholder="Номер телефона"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Пароль"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                {error && <p style={{color: '#e74c3c', marginBottom: 12, fontSize: 14}}>{error}</p>}
+                <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                  {isLoading ? 'Загрузка...' : 'Войти'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleRegister}>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Ваше имя"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <input
+                  type="tel"
+                  className="input"
+                  placeholder="Номер телефона"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+                <input
+                  type="password"
+                  className="input"
+                  placeholder="Придумайте пароль"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <div className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    className="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                  />
+                  <span>Я согласен на обработку персональных данных</span>
+                </div>
+                {error && <p style={{color: '#e74c3c', marginBottom: 12, fontSize: 14}}>{error}</p>}
+                <button type="submit" className="btn btn-primary" disabled={isLoading}>
+                  {isLoading ? 'Загрузка...' : 'Зарегистрироваться'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function BookingScreen() {
+      const { user } = useAuth();
+      const [selectedRoom, setSelectedRoom] = useState(null);
+      const [selectedDate, setSelectedDate] = useState(new Date());
+      const [bookingType, setBookingType] = useState('hourly');
+      const [startHour, setStartHour] = useState(null);
+      const [endHour, setEndHour] = useState(null);
+      const [bookedSlots, setBookedSlots] = useState([]);
+      const [allBookings, setAllBookings] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+      const [slotsLoading, setSlotsLoading] = useState(false);
+
+      const dates = [];
+      for (let i = 0; i < 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        dates.push(d);
+      }
+
+      const calendarDates = [];
+      for (let i = 0; i < 90; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        calendarDates.push(d);
+      }
+
+      const dayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+      const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+      const hours = Array.from({length: 24}, (_, i) => i + 20);
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+
+      useEffect(() => {
+        if (selectedRoom) {
+          fetchBookedSlots();
+          if (bookingType === 'daily') {
+            fetchAllBookings();
+          }
+        }
+      }, [selectedRoom, selectedDate, bookingType]);
+
+      const fetchAllBookings = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings`);
+          if (res.ok) {
+            const data = await res.json();
+            setAllBookings(Array.isArray(data) ? data.filter(b => b.roomNumber === selectedRoom) : []);
+          }
+        } catch (err) {
+          console.error('Error fetching all bookings:', err);
+        }
+      };
+
+      const fetchBookedSlots = async () => {
+        setSlotsLoading(true);
+        setBookedSlots([]);
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings/${selectedRoom}/${dateStr}`);
+          if (res.ok) {
+            const data = await res.json();
+            setBookedSlots(Array.isArray(data) ? data : []);
+          } else {
+            setBookedSlots([]);
+          }
+        } catch (err) {
+          console.error('Error fetching slots:', err);
+          setBookedSlots([]);
+        }
+        setSlotsLoading(false);
+      };
+
+      const isDateBooked = (date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        return allBookings.some(b => b.date === dateStr);
+      };
+
+      const getCalendarByMonth = () => {
+        const months = {};
+        calendarDates.forEach(d => {
+          const key = `${d.getFullYear()}-${d.getMonth()}`;
+          if (!months[key]) {
+            months[key] = { year: d.getFullYear(), month: d.getMonth(), dates: [] };
+          }
+          months[key].dates.push(d);
+        });
+        return Object.values(months);
+      };
+
+      const isHourBooked = (hour) => {
+        if (!Array.isArray(bookedSlots)) return false;
+        return bookedSlots.some(b => {
+          try {
+            if (b.bookingType === 'daily') return true;
+            if (b.startHour === null || b.startHour === undefined) return false;
+            const start = b.startHour;
+            const end = start + (b.duration || 2);
+            return hour >= start && hour < end;
+          } catch (e) {
+            return false;
+          }
+        });
+      };
+
+      const isRangeAvailable = (start, end) => {
+        if (start === null || end === null || start >= end) return false;
+        for (let h = start; h < end; h++) {
+          if (isHourBooked(h)) return false;
+        }
+        return true;
+      };
+
+      const getAvailableEndHours = () => {
+        if (startHour === null) return [];
+        const available = [];
+        for (let h = startHour + 2; h <= 44; h++) {
+          let rangeOk = true;
+          for (let check = startHour; check < h; check++) {
+            if (isHourBooked(check)) {
+              rangeOk = false;
+              break;
+            }
+          }
+          if (rangeOk) {
+            available.push(h);
+          } else {
+            break;
+          }
+        }
+        return available;
+      };
+
+      const calculatePrice = () => {
+        if (bookingType === 'daily') return 3200;
+        if (startHour === null || endHour === null) return 0;
+        return (endHour - startHour) * 200;
+      };
+
+      const handleBook = async () => {
+        if (bookingType === 'hourly' && (startHour === null || endHour === null)) return;
+        if (bookingType === 'hourly' && !isRangeAvailable(startHour, endHour)) {
+          alert('Выбранное время недоступно');
+          return;
+        }
+        setIsLoading(true);
+
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const bookingStartHour = bookingType === 'daily' ? 20 : startHour;
+        const bookingDuration = bookingType === 'daily' ? 24 : (endHour - startHour);
+        const booking = {
+          roomNumber: selectedRoom,
+          date: dateStr,
+          bookingType,
+          startHour: bookingStartHour,
+          duration: bookingDuration,
+          userId: user.id,
+          userName: user.name,
+          userPhone: user.phone,
+          price: calculatePrice()
+        };
+
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(booking)
+          });
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            alert(errData.error || 'Ошибка при бронировании');
+            setIsLoading(false);
+            return;
+          }
+          alert('Бронирование успешно создано!');
+          setSelectedRoom(null);
+          setStartHour(null);
+          setEndHour(null);
+        } catch (err) {
+          alert('Ошибка при бронировании');
+        }
+        setIsLoading(false);
+      };
+
+      if (!selectedRoom) {
+        return (
+          <div className="container" style={{paddingBottom: 120}}>
+            <h2 className="section-title">Выберите кабинет</h2>
+            {[1, 2, 3].map(num => (
+              <div 
+                key={num} 
+                className={`room-card room-${num}`}
+                onClick={() => setSelectedRoom(num)}
+              >
+                <div className="room-title">Кабинет {num}</div>
+                <div className="room-status">Доступен для бронирования</div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      const availableEndHours = getAvailableEndHours();
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <button className="back-btn" onClick={() => setSelectedRoom(null)}>
+            ← Назад
+          </button>
+
+          <h2 className="section-title">Кабинет {selectedRoom}</h2>
+
+          <div className="tabs" style={{marginBottom: 16}}>
+            <button 
+              className={`tab ${bookingType === 'hourly' ? 'active' : ''}`}
+              onClick={() => { setBookingType('hourly'); setStartHour(null); setEndHour(null); }}
+            >
+              Почасовая (200₽/30мин)
+            </button>
+            <button 
+              className={`tab ${bookingType === 'daily' ? 'active' : ''}`}
+              onClick={() => { setBookingType('daily'); setStartHour(null); setEndHour(null); }}
+            >
+              На день (3200₽)
+            </button>
+          </div>
+
+          {bookingType === 'hourly' ? (
+            <div className="date-picker">
+              {dates.map((d, i) => (
+                <div
+                  key={i}
+                  className={`date-item ${d.toDateString() === selectedDate.toDateString() ? 'selected' : ''}`}
+                  onClick={() => { setSelectedDate(d); setStartHour(null); setEndHour(null); }}
+                >
+                  <div className="date-day">{dayNames[d.getDay()]}</div>
+                  <div className="date-num">{d.getDate()}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{marginBottom: 20}}>
+              {getCalendarByMonth().map((monthData, mi) => (
+                <div key={mi} style={{marginBottom: 24}}>
+                  <div style={{fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#ccd6f6'}}>
+                    {monthNames[monthData.month]} {monthData.year}
+                  </div>
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8}}>
+                    {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(day => (
+                      <div key={day} style={{textAlign: 'center', fontSize: 11, color: '#8892b0', padding: 4}}>{day}</div>
+                    ))}
+                  </div>
+                  <div style={{display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4}}>
+                    {(() => {
+                      const firstDate = monthData.dates[0];
+                      let firstDayOfWeek = firstDate.getDay();
+                      firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
+                      const emptyCells = [];
+                      for (let i = 0; i < firstDayOfWeek; i++) {
+                        emptyCells.push(<div key={`empty-${i}`} style={{padding: 8}}></div>);
+                      }
+                      return emptyCells;
+                    })()}
+                    {monthData.dates.map((d, di) => {
+                      const booked = isDateBooked(d);
+                      const isSelected = d.toDateString() === selectedDate.toDateString();
+                      return (
+                        <div
+                          key={di}
+                          onClick={() => { if (!booked) { setSelectedDate(d); } }}
+                          style={{
+                            padding: 8,
+                            textAlign: 'center',
+                            borderRadius: 8,
+                            cursor: booked ? 'not-allowed' : 'pointer',
+                            background: isSelected ? '#4a90e2' : booked ? 'rgba(231, 76, 60, 0.3)' : 'rgba(255,255,255,0.05)',
+                            color: booked ? '#e74c3c' : isSelected ? '#fff' : '#ccd6f6',
+                            fontSize: 14,
+                            fontWeight: isSelected ? 600 : 400,
+                            opacity: booked ? 0.7 : 1
+                          }}
+                        >
+                          {d.getDate()}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {bookingType === 'hourly' && (
+            <div>
+              {slotsLoading ? (
+                <div style={{textAlign: 'center', padding: 20, color: '#8892b0'}}>Загрузка...</div>
+              ) : (
+              <div style={{marginBottom: 16}}>
+                <label style={{display: 'block', marginBottom: 8, color: '#8892b0', fontSize: 14}}>Время начала:</label>
+                <div className="time-slots">
+                  {hours.filter(slot => slot <= 42).map(slot => (
+                    <div
+                      key={slot}
+                      className={`time-slot ${isHourBooked(slot) ? 'disabled' : ''} ${startHour === slot ? 'selected' : ''}`}
+                      onClick={() => {
+                        if (!isHourBooked(slot)) {
+                          setStartHour(slot);
+                          setEndHour(null);
+                        }
+                      }}
+                    >
+                      {slotToTime(slot)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              )}
+
+              {startHour !== null && (
+                <div style={{marginBottom: 16}}>
+                  <label style={{display: 'block', marginBottom: 8, color: '#8892b0', fontSize: 14}}>Время окончания:</label>
+                  <div className="time-slots">
+                    {availableEndHours.map(slot => (
+                      <div
+                        key={slot}
+                        className={`time-slot ${endHour === slot ? 'selected' : ''}`}
+                        onClick={() => setEndHour(slot)}
+                      >
+                        {slotToTime(slot)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {startHour !== null && endHour !== null && (
+                <div style={{textAlign: 'center', marginBottom: 16, padding: 12, background: 'rgba(74, 144, 226, 0.1)', borderRadius: 12}}>
+                  <span style={{color: '#8892b0'}}>Выбрано: </span>
+                  <span style={{fontWeight: 600}}>{slotToTime(startHour)} - {slotToTime(endHour)}</span>
+                  <span style={{color: '#8892b0'}}> ({(endHour - startHour) / 2} ч.)</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="price-info">
+            <div>Итого:</div>
+            <div className="price">{calculatePrice()} ₽</div>
+          </div>
+
+          <button 
+            className="btn btn-primary"
+            onClick={handleBook}
+            disabled={isLoading || (bookingType === 'hourly' && (startHour === null || endHour === null))}
+          >
+            {isLoading ? 'Бронирование...' : 'Забронировать'}
+          </button>
+        </div>
+      );
+    }
+
+    function MessagesScreen() {
+      const { user } = useAuth();
+      const [messages, setMessages] = useState([]);
+      const [newMessage, setNewMessage] = useState('');
+      const [chatId, setChatId] = useState(null);
+      const [chatLoading, setChatLoading] = useState(true);
+
+      useEffect(() => {
+        initChat();
+      }, []);
+
+      useEffect(() => {
+        if (chatId) {
+          fetchMessages();
+          const interval = setInterval(fetchMessages, 5000);
+          return () => clearInterval(interval);
+        }
+      }, [chatId]);
+
+      const initChat = async () => {
+        setChatLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/api/chats`);
+          const chats = await res.json();
+          const myChat = Array.isArray(chats) ? chats.find(c => c.clientId === user.id) : null;
+          if (myChat) {
+            setChatId(myChat.id);
+          } else {
+            const newRes = await fetch(`${API_BASE}/api/chats`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clientId: user.id,
+                clientName: user.name,
+                clientPhone: user.phone
+              })
+            });
+            if (newRes.ok) {
+              const newChat = await newRes.json();
+              setChatId(newChat.id);
+            }
+          }
+        } catch (err) {
+          console.error('Error initializing chat:', err);
+        }
+        setChatLoading(false);
+      };
+
+      const fetchMessages = async () => {
+        if (!chatId) return;
+        try {
+          const res = await fetch(`${API_BASE}/api/messages/${chatId}`);
+          const data = await res.json();
+          setMessages(data);
+        } catch (err) {
+          console.error('Error fetching messages:', err);
+        }
+      };
+
+      const sendMessage = async (e) => {
+        e.preventDefault();
+        if (!newMessage.trim() || !chatId) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chatId,
+              text: newMessage,
+              senderId: user.id,
+              senderName: user.name,
+              senderRole: 'client'
+            })
+          });
+          if (res.ok) {
+            setNewMessage('');
+            fetchMessages();
+          } else {
+            console.error('Failed to send message:', await res.text());
+          }
+        } catch (err) {
+          console.error('Error sending message:', err);
+        }
+      };
+
+      if (chatLoading) {
+        return (
+          <div className="container">
+            <h2 className="section-title">Сообщения</h2>
+            <div style={{textAlign: 'center', padding: 40, color: '#8892b0'}}>Загрузка чата...</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="container">
+          <h2 className="section-title">Сообщения</h2>
+          
+          <div className="message-list">
+            {messages.length === 0 ? (
+              <div className="empty-state">
+                <p>Напишите нам, мы ответим в ближайшее время</p>
+              </div>
+            ) : (
+              messages.map(msg => (
+                <div 
+                  key={msg.id} 
+                  className={`message ${msg.senderRole === 'client' ? 'sent' : 'received'}`}
+                >
+                  {msg.text}
+                </div>
+              ))
+            )}
+          </div>
+
+          <form className="message-input-container" onSubmit={sendMessage}>
+            <input
+              type="text"
+              className="message-input"
+              placeholder="Введите сообщение..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              disabled={!chatId}
+            />
+            <button type="submit" className="send-btn" disabled={!chatId}>→</button>
+          </form>
+        </div>
+      );
+    }
+
+    function ProfileScreen() {
+      const { user, logout } = useAuth();
+      const [bookings, setBookings] = useState([]);
+
+      useEffect(() => {
+        fetchBookings();
+      }, []);
+
+      const fetchBookings = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings/user/${user.id}`);
+          const data = await res.json();
+          setBookings(data);
+        } catch (err) {
+          console.error('Error fetching bookings:', err);
+        }
+      };
+
+      const canCancelBooking = (booking) => {
+        const bookingDate = new Date(booking.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        bookingDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = bookingDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (booking.bookingType === 'daily') {
+          return diffDays >= 2;
+        } else {
+          return diffDays >= 1;
+        }
+      };
+
+      const getCancelRestrictionText = (booking) => {
+        if (booking.bookingType === 'daily') {
+          return 'Отмена за 2+ дней';
+        } else {
+          return 'Отмена за 1+ день';
+        }
+      };
+
+      const cancelBooking = async (id) => {
+        if (!confirm('Отменить бронирование?')) return;
+        try {
+          await fetch(`${API_BASE}/api/bookings/${id}`, { method: 'DELETE' });
+          fetchBookings();
+        } catch (err) {
+          console.error('Error canceling booking:', err);
+        }
+      };
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <div className="profile-header">
+            <div className="profile-avatar">{user.name[0]}</div>
+            <div className="profile-name">{user.name}</div>
+            <div className="profile-phone">{user.phone}</div>
+          </div>
+
+          <h3 className="section-title">Мои бронирования</h3>
+          {bookings.length === 0 ? (
+            <div className="empty-state">У вас пока нет бронирований</div>
+          ) : (
+            bookings.map(b => {
+              const slotToTimeProfile = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+              const startTime = b.startHour !== null && b.startHour !== undefined ? slotToTimeProfile(b.startHour) : '--';
+              const endTime = b.startHour !== null && b.startHour !== undefined && b.duration ? slotToTimeProfile(b.startHour + b.duration) : '--';
+              return (
+                <div key={b.id} className="booking-item">
+                  <div className="booking-info">
+                    <h4>Кабинет {b.roomNumber}</h4>
+                    <p>{b.date} | {startTime} - {endTime}</p>
+                    <p>{b.price} ₽ | {b.bookingType === 'daily' ? 'На день' : 'Почасовая'}</p>
+                  </div>
+                  {canCancelBooking(b) ? (
+                    <button className="cancel-btn" onClick={() => cancelBooking(b.id)}>
+                      Отменить
+                    </button>
+                ) : (
+                  <div style={{fontSize: 11, color: '#8892b0', textAlign: 'right', maxWidth: 80}}>
+                    {getCancelRestrictionText(b)}
+                  </div>
+                )}
+              </div>
+              );
+            })
+          )}
+
+          <button className="btn logout-btn" onClick={logout}>
+            Выйти
+          </button>
+        </div>
+      );
+    }
+
+    function AdminChatsScreen({ onSelectChat }) {
+      const [chats, setChats] = useState([]);
+
+      useEffect(() => {
+        fetchChats();
+        const interval = setInterval(fetchChats, 10000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchChats = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/chats`);
+          const data = await res.json();
+          setChats(data);
+        } catch (err) {
+          console.error('Error fetching chats:', err);
+        }
+      };
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Чаты с клиентами</h2>
+          {chats.length === 0 ? (
+            <div className="empty-state">Нет активных чатов</div>
+          ) : (
+            chats.map(chat => (
+              <div key={chat.id} className="chat-item" onClick={() => onSelectChat(chat)}>
+                <div className="chat-avatar">{chat.clientName[0]}</div>
+                <div className="chat-info">
+                  <div className="chat-name">{chat.clientName}</div>
+                  <div className="chat-preview">{chat.lastMessage || 'Нет сообщений'}</div>
+                </div>
+                {chat.unreadCount > 0 && (
+                  <div className="unread-badge">{chat.unreadCount}</div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      );
+    }
+
+    function AdminChatScreen({ chat, onBack }) {
+      const [messages, setMessages] = useState([]);
+      const [newMessage, setNewMessage] = useState('');
+
+      useEffect(() => {
+        fetchMessages();
+        markAsRead();
+        const interval = setInterval(fetchMessages, 5000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchMessages = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/messages/${chat.id}`);
+          const data = await res.json();
+          setMessages(data);
+        } catch (err) {
+          console.error('Error fetching messages:', err);
+        }
+      };
+
+      const markAsRead = async () => {
+        try {
+          await fetch(`${API_BASE}/api/chats/${chat.id}/read`, { method: 'PUT' });
+        } catch (err) {
+          console.error('Error marking as read:', err);
+        }
+      };
+
+      const sendMessage = async (e) => {
+        e.preventDefault();
+        if (!newMessage.trim()) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chatId: chat.id,
+              text: newMessage,
+              senderId: 'admin',
+              senderName: 'Администратор',
+              senderRole: 'admin'
+            })
+          });
+          if (res.ok) {
+            setNewMessage('');
+            fetchMessages();
+          }
+        } catch (err) {
+          console.error('Error sending message:', err);
+        }
+      };
+
+      return (
+        <div className="container">
+          <button className="back-btn" onClick={onBack}>
+            ← {chat.clientName}
+          </button>
+          
+          <div className="message-list">
+            {messages.map(msg => (
+              <div 
+                key={msg.id} 
+                className={`message ${msg.senderRole === 'admin' ? 'sent' : 'received'}`}
+              >
+                {msg.text}
+              </div>
+            ))}
+          </div>
+
+          <form className="message-input-container" onSubmit={sendMessage}>
+            <input
+              type="text"
+              className="message-input"
+              placeholder="Введите сообщение..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+            />
+            <button type="submit" className="send-btn">→</button>
+          </form>
+        </div>
+      );
+    }
+
+    function AdminBookingsScreen() {
+      const [bookings, setBookings] = useState([]);
+
+      useEffect(() => {
+        fetchBookings();
+      }, []);
+
+      const fetchBookings = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings`);
+          const data = await res.json();
+          console.log('Admin bookings data:', JSON.stringify(data, null, 2));
+          setBookings(data);
+        } catch (err) {
+          console.error('Error fetching bookings:', err);
+        }
+      };
+
+      const cancelBooking = async (id) => {
+        if (!confirm('Отменить бронирование?')) return;
+        try {
+          await fetch(`${API_BASE}/api/bookings/${id}`, { method: 'DELETE' });
+          fetchBookings();
+        } catch (err) {
+          console.error('Error canceling booking:', err);
+        }
+      };
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Все бронирования</h2>
+          {bookings.length === 0 ? (
+            <div className="empty-state">Нет бронирований</div>
+          ) : (
+            bookings.map(b => {
+              const slotToTimeAdmin = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+              const startTime = b.startHour !== null && b.startHour !== undefined ? slotToTimeAdmin(b.startHour) : '--';
+              const endTime = b.startHour !== null && b.startHour !== undefined && b.duration ? slotToTimeAdmin(b.startHour + b.duration) : '--';
+              return (
+                <div key={b.id} className="booking-item">
+                  <div className="booking-info">
+                    <h4>Кабинет {b.roomNumber} - {b.userName}</h4>
+                    <p>{b.date} | {startTime} - {endTime}</p>
+                    <p>{b.userPhone} | {b.price} ₽</p>
+                  </div>
+                  <button className="cancel-btn" onClick={() => cancelBooking(b.id)}>
+                    Отменить
+                  </button>
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    function AdminProfileScreen() {
+      const { user, logout } = useAuth();
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <div className="profile-header">
+            <div className="profile-avatar">A</div>
+            <div className="profile-name">{user.name}</div>
+            <div className="profile-phone">Администратор</div>
+          </div>
+
+          <button className="btn logout-btn" onClick={logout}>
+            Выйти
+          </button>
+        </div>
+      );
+    }
+
+    function ClientApp() {
+      const [tab, setTab] = useState('booking');
+
+      return (
+        <>
+          {tab === 'booking' && <BookingScreen />}
+          {tab === 'messages' && <MessagesScreen />}
+          {tab === 'profile' && <ProfileScreen />}
+
+          <nav className="nav">
+            <button className={`nav-item ${tab === 'booking' ? 'active' : ''}`} onClick={() => setTab('booking')}>
+              <span className="nav-icon">📅</span>
+              <span>Бронирование</span>
+            </button>
+            <button className={`nav-item ${tab === 'messages' ? 'active' : ''}`} onClick={() => setTab('messages')}>
+              <span className="nav-icon">💬</span>
+              <span>Сообщения</span>
+            </button>
+            <button className={`nav-item ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>
+              <span className="nav-icon">👤</span>
+              <span>Профиль</span>
+            </button>
+          </nav>
+        </>
+      );
+    }
+
+    function AdminApp() {
+      const [tab, setTab] = useState('bookings');
+      const [selectedChat, setSelectedChat] = useState(null);
+
+      if (selectedChat) {
+        return <AdminChatScreen chat={selectedChat} onBack={() => setSelectedChat(null)} />;
+      }
+
+      return (
+        <>
+          {tab === 'bookings' && <AdminBookingsScreen />}
+          {tab === 'chats' && <AdminChatsScreen onSelectChat={setSelectedChat} />}
+          {tab === 'profile' && <AdminProfileScreen />}
+
+          <nav className="nav">
+            <button className={`nav-item ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>
+              <span className="nav-icon">📋</span>
+              <span>Бронирования</span>
+            </button>
+            <button className={`nav-item ${tab === 'chats' ? 'active' : ''}`} onClick={() => setTab('chats')}>
+              <span className="nav-icon">💬</span>
+              <span>Чаты</span>
+            </button>
+            <button className={`nav-item ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>
+              <span className="nav-icon">👤</span>
+              <span>Профиль</span>
+            </button>
+          </nav>
+        </>
+      );
+    }
+
+    function App() {
+      const { user, loading } = useAuth();
+
+      if (loading) {
+        return <div className="loading">Загрузка...</div>;
+      }
+
+      if (!user) {
+        return <AuthScreen />;
+      }
+
+      return <ClientApp />;
+    }
+
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error('App error:', error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="container" style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', textAlign: 'center'}}>
+              <div style={{fontSize: 48, marginBottom: 20}}>!</div>
+              <h2 style={{marginBottom: 16}}>Что-то пошло не так</h2>
+              <p style={{color: '#8892b0', marginBottom: 24}}>Произошла ошибка при загрузке приложения</p>
+              <button className="btn btn-primary" style={{maxWidth: 200}} onClick={() => window.location.reload()}>
+                Перезагрузить
+              </button>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function Root() {
+      return (
+        <ErrorBoundary>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ErrorBoundary>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+  </script>
+</body>
+</html>

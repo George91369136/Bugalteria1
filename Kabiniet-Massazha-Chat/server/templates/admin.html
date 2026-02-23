@@ -1,0 +1,3166 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Altbody - Панель администратора</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+    #root {
+      min-height: 100vh;
+    }
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-size: 18px;
+      color: #8892b0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4A90E2;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #8892b0;
+      font-size: 14px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input:focus {
+      border-color: #4A90E2;
+    }
+    .input::placeholder {
+      color: #6c7293;
+    }
+    select.input {
+      appearance: auto;
+      -webkit-appearance: auto;
+      cursor: pointer;
+    }
+    select.input option {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 8px;
+    }
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #4A90E2;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #357abd;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #8892b0;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-tab.active {
+      background: #4A90E2;
+      border-color: #4A90E2;
+      color: #fff;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .error {
+      color: #e74c3c;
+      text-align: center;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      padding: 8px 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      color: #8892b0;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 4px 2px;
+    }
+    .nav-item.active {
+      color: #4A90E2;
+    }
+    .nav-icon {
+      font-size: 18px;
+    }
+    .profile-header {
+      text-align: center;
+      padding: 30px 0;
+    }
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #4A90E2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 600;
+      margin: 0 auto 16px;
+    }
+    .profile-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .profile-phone {
+      color: #8892b0;
+    }
+    .logout-btn {
+      margin-top: 20px;
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+    .chat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .chat-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #4A90E2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .chat-info {
+      flex: 1;
+    }
+    .chat-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .chat-preview {
+      color: #8892b0;
+      font-size: 14px;
+    }
+    .unread-badge {
+      background: #e74c3c;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .message-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 0;
+      max-height: calc(100vh - 200px);
+    }
+    .message {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin-bottom: 8px;
+    }
+    .message.sent {
+      background: #4A90E2;
+      margin-left: auto;
+    }
+    .message.received {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .message-input-container {
+      display: flex;
+      gap: 8px;
+      padding: 16px 0;
+      position: sticky;
+      bottom: 80px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    .message-input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+    }
+    .send-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #4A90E2;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .back-btn {
+      background: none;
+      border: none;
+      color: #4A90E2;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 8px 0;
+      margin-bottom: 16px;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #8892b0;
+    }
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .room-header {
+      text-align: center;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .day-row {
+      display: contents;
+    }
+    .day-label {
+      grid-column: 1 / -1;
+      padding: 12px 0 8px;
+      font-weight: 600;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 8px;
+    }
+    .day-label:first-of-type {
+      border-top: none;
+      margin-top: 0;
+    }
+    .hour-grid {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      margin-bottom: 16px;
+    }
+    .hour-label {
+      font-size: 11px;
+      color: #8892b0;
+      text-align: right;
+      padding-right: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .hour-cell {
+      height: 28px;
+      border-radius: 4px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hour-cell.free {
+      background: rgba(46, 204, 113, 0.3);
+      border: 1px solid rgba(46, 204, 113, 0.5);
+    }
+    .hour-cell.booked {
+      background: rgba(231, 76, 60, 0.3);
+      border: 1px solid rgba(231, 76, 60, 0.5);
+    }
+    .hour-cell.daily-blocked {
+      background: rgba(155, 89, 182, 0.3);
+      border: 1px solid rgba(155, 89, 182, 0.5);
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .calendar-header {
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      color: #8892b0;
+      font-weight: 600;
+    }
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+    .calendar-day.has-booking {
+      background: rgba(155, 89, 182, 0.3);
+      border: 1px solid rgba(155, 89, 182, 0.5);
+    }
+    .calendar-day.today {
+      border: 2px solid #4A90E2;
+    }
+    .calendar-day.other-month {
+      opacity: 0.3;
+    }
+    .booking-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #9b59b6;
+      position: absolute;
+      bottom: 4px;
+    }
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #8892b0;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+    .legend-color.free {
+      background: rgba(46, 204, 113, 0.3);
+      border: 1px solid rgba(46, 204, 113, 0.5);
+    }
+    .legend-color.booked {
+      background: rgba(231, 76, 60, 0.3);
+      border: 1px solid rgba(231, 76, 60, 0.5);
+    }
+    .legend-color.daily {
+      background: rgba(155, 89, 182, 0.3);
+      border: 1px solid rgba(155, 89, 182, 0.5);
+    }
+    .room-section {
+      margin-bottom: 24px;
+    }
+    .room-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .room-badge {
+      background: #4A90E2;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .booking-details {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .booking-details p {
+      margin-bottom: 4px;
+    }
+    .cancel-btn-small {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .month-nav button {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .month-nav button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .month-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"><div class="loading">Загрузка...</div></div>
+  <script type="text/babel">
+    const { useState, useEffect, createContext, useContext, useMemo, useRef } = React;
+
+    const API_BASE = '';
+
+    const AuthContext = createContext(null);
+
+    function useAuth() {
+      return useContext(AuthContext);
+    }
+
+    function AuthProvider({ children }) {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        const saved = localStorage.getItem('altbody_admin');
+        if (saved) {
+          setUser(JSON.parse(saved));
+        }
+        setLoading(false);
+      }, []);
+
+      const login = (userData) => {
+        setUser(userData);
+        localStorage.setItem('altbody_admin', JSON.stringify(userData));
+      };
+
+      const logout = () => {
+        setUser(null);
+        localStorage.removeItem('altbody_admin');
+      };
+
+      return (
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+          {children}
+        </AuthContext.Provider>
+      );
+    }
+
+    function AdminLoginScreen() {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const { login } = useAuth();
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const validAdmins = ['admin1', 'admin2', 'admin3'];
+        if (validAdmins.includes(username) && password === '6319') {
+          login({
+            id: username,
+            name: username,
+            role: 'admin'
+          });
+        } else {
+          setError('Неверные учетные данные');
+        }
+      };
+
+      return (
+        <div className="container">
+          <div className="header">
+            <div className="logo">Altbody</div>
+            <div className="subtitle">Панель администратора</div>
+          </div>
+
+          <div className="card">
+            {error && <div className="error">{error}</div>}
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                className="input"
+                placeholder="Логин администратора"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input
+                type="password"
+                className="input"
+                placeholder="Пароль"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button type="submit" className="btn btn-primary">
+                Войти
+              </button>
+            </form>
+          </div>
+        </div>
+      );
+    }
+
+    const CLIENT_COLORS = [
+      '#4A90E2', '#E67E22', '#2ECC71', '#E74C3C', '#9B59B6',
+      '#1ABC9C', '#F1C40F', '#E84393', '#00CEC9', '#6C5CE7',
+      '#FD79A8', '#00B894', '#FDCB6E', '#74B9FF', '#A29BFE',
+      '#FF7675', '#55E6C1', '#FEA47F', '#25CCF7', '#EAB543'
+    ];
+
+    function getClientColor(userId, colorMap, phone) {
+      if (!colorMap.current) colorMap.current = {};
+      const key = (phone ? normalizePhoneClient(phone) : null) || userId;
+      if (!colorMap.current[key]) {
+        const idx = Object.keys(colorMap.current).length % CLIENT_COLORS.length;
+        colorMap.current[key] = CLIENT_COLORS[idx];
+      }
+      return colorMap.current[key];
+    }
+
+    function BookingEditForm({ booking, onSave, onCancel, slotToTime }) {
+      const [editRoom, setEditRoom] = useState(booking.roomNumber);
+      const [editDate, setEditDate] = useState(booking.date);
+      const [editStartHour, setEditStartHour] = useState(booking.startHour || 20);
+      const [editDuration, setEditDuration] = useState(booking.duration || 2);
+      const [editType, setEditType] = useState(booking.bookingType);
+      const [saving, setSaving] = useState(false);
+      const [error, setError] = useState('');
+
+      const slots = Array.from({length: 24}, (_, i) => i + 20);
+
+      const handleSave = async () => {
+        setSaving(true);
+        setError('');
+        try {
+          const body = { roomNumber: editRoom, date: editDate, bookingType: editType };
+          if (editType !== 'daily') {
+            body.startHour = editStartHour;
+            body.duration = editDuration;
+          }
+          const res = await fetch(`${API_BASE}/api/bookings/${booking.id}/edit`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body)
+          });
+          if (!res.ok) {
+            const data = await res.json();
+            setError(data.error || 'Ошибка сохранения');
+            setSaving(false);
+            return;
+          }
+          onSave();
+        } catch (err) {
+          setError('Ошибка сети');
+          setSaving(false);
+        }
+      };
+
+      return (
+        <div style={{marginTop: 12}}>
+          <div style={{display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap'}}>
+            <label style={{fontSize: 13, color: '#ccd6f6', flex: '1 1 auto'}}>
+              Кабинет:
+              <select value={editRoom} onChange={e => setEditRoom(Number(e.target.value))} style={{marginLeft: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 6, padding: '4px 8px', fontSize: 13}}>
+                <option value={1}>1</option>
+                <option value={2}>2</option>
+                <option value={3}>3</option>
+              </select>
+            </label>
+            <label style={{fontSize: 13, color: '#ccd6f6', flex: '1 1 auto'}}>
+              Дата:
+              <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} style={{marginLeft: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 6, padding: '4px 8px', fontSize: 13}} />
+            </label>
+          </div>
+          {editType !== 'daily' && (
+            <div style={{display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap'}}>
+              <label style={{fontSize: 13, color: '#ccd6f6', flex: '1 1 auto'}}>
+                Начало:
+                <select value={editStartHour} onChange={e => setEditStartHour(Number(e.target.value))} style={{marginLeft: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 6, padding: '4px 8px', fontSize: 13}}>
+                  {slots.map(s => <option key={s} value={s}>{slotToTime(s)}</option>)}
+                </select>
+              </label>
+              <label style={{fontSize: 13, color: '#ccd6f6', flex: '1 1 auto'}}>
+                Длительность:
+                <select value={editDuration} onChange={e => setEditDuration(Number(e.target.value))} style={{marginLeft: 6, background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 6, padding: '4px 8px', fontSize: 13}}>
+                  {[2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24].filter(d => editStartHour + d <= 44).map(d => {
+                    const hrs = d / 2;
+                    return <option key={d} value={d}>{hrs} ч ({d * 200} ₽)</option>;
+                  })}
+                </select>
+              </label>
+            </div>
+          )}
+          {error && <div style={{color: '#e74c3c', fontSize: 12, marginBottom: 8}}>{error}</div>}
+          <div style={{display: 'flex', gap: 8}}>
+            <button onClick={handleSave} disabled={saving} style={{padding: '6px 14px', background: 'rgba(74,144,226,0.3)', color: '#4A90E2', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer'}}>{saving ? 'Сохранение...' : 'Сохранить'}</button>
+            <button onClick={onCancel} style={{padding: '6px 14px', background: 'rgba(255,255,255,0.1)', color: '#8892b0', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer'}}>Отмена</button>
+          </div>
+        </div>
+      );
+    }
+
+    function HourlyBookingsView() {
+      const [bookings, setBookings] = useState([]);
+      const [selectedBooking, setSelectedBooking] = useState(null);
+      const [selectedDay, setSelectedDay] = useState(null);
+      const [editingBooking, setEditingBooking] = useState(null);
+      const clientColorMap = useRef({});
+
+      useEffect(() => {
+        fetchBookings();
+        const interval = setInterval(fetchBookings, 15000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchBookings = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings`);
+          const data = await res.json();
+          setBookings(data);
+        } catch (err) {
+          console.error('Error fetching bookings:', err);
+        }
+      };
+
+      const cancelBooking = async (id) => {
+        if (!confirm('Отменить бронирование?')) return;
+        try {
+          await fetch(`${API_BASE}/api/bookings/${id}`, { method: 'DELETE' });
+          setSelectedBooking(null);
+          fetchBookings();
+        } catch (err) {
+          console.error('Error canceling booking:', err);
+        }
+      };
+
+      const days = useMemo(() => {
+        const result = [];
+        const today = new Date();
+        for (let i = 0; i < 30; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() + i);
+          result.push({
+            date: d.toISOString().split('T')[0],
+            dayName: d.toLocaleDateString('ru-RU', { weekday: 'short' }),
+            dayNum: d.getDate(),
+            monthName: d.toLocaleDateString('ru-RU', { month: 'short' })
+          });
+        }
+        return result;
+      }, []);
+
+      const slots = Array.from({length: 24}, (_, i) => i + 20);
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+
+      const getBookingForSlot = (roomNumber, date, slot) => {
+        return bookings.find(b => 
+          b.roomNumber === roomNumber && 
+          b.date === date && 
+          b.bookingType !== 'daily' &&
+          b.startHour !== null && 
+          b.startHour !== undefined &&
+          slot >= b.startHour && 
+          slot < b.startHour + (b.duration || 2)
+        );
+      };
+
+      const isDailyBooked = (roomNumber, date) => {
+        return bookings.some(b => 
+          b.roomNumber === roomNumber && 
+          b.date === date && 
+          b.bookingType === 'daily' &&
+          b.startHour === 20 &&
+          b.duration === 24
+        );
+      };
+
+      const getDailyBooking = (roomNumber, date) => {
+        return bookings.find(b => 
+          b.roomNumber === roomNumber && 
+          b.date === date && 
+          b.bookingType === 'daily'
+        );
+      };
+
+      const getCellStyle = (roomNumber, date, slot) => {
+        const daily = getDailyBooking(roomNumber, date);
+        if (daily) {
+          return { background: getClientColor(daily.userId, clientColorMap, daily.userPhone) + '99', border: '1px solid ' + getClientColor(daily.userId, clientColorMap, daily.userPhone) };
+        }
+        const booking = getBookingForSlot(roomNumber, date, slot);
+        if (booking) {
+          return { background: getClientColor(booking.userId, clientColorMap, booking.userPhone) + '99', border: '1px solid ' + getClientColor(booking.userId, clientColorMap, booking.userPhone) };
+        }
+        return { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' };
+      };
+
+      const getBookingsForDate = (date) => {
+        return bookings.filter(b => b.date === date);
+      };
+
+      const getLegendClients = () => {
+        const seen = {};
+        bookings.forEach(b => {
+          const key = (b.userPhone ? normalizePhoneClient(b.userPhone) : null) || b.userId;
+          if (!seen[key]) {
+            seen[key] = { name: b.userName, color: getClientColor(b.userId, clientColorMap, b.userPhone) };
+          }
+        });
+        return Object.values(seen);
+      };
+
+      if (selectedDay) {
+        const dayBookings = getBookingsForDate(selectedDay.date);
+        const dayDate = new Date(selectedDay.date);
+        const dayLabel = dayDate.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        return (
+          <div>
+            <button className="back-btn" onClick={() => { setSelectedDay(null); setSelectedBooking(null); }}>← Назад к обзору</button>
+            <h2 className="section-title">{dayLabel}</h2>
+
+            {(() => {
+              const dayClients = {};
+              dayBookings.forEach(b => {
+                const key = (b.userPhone ? normalizePhoneClient(b.userPhone) : null) || b.userId;
+                if (!dayClients[key]) dayClients[key] = { name: b.userName, color: getClientColor(b.userId, clientColorMap, b.userPhone) };
+              });
+              const clientList = Object.values(dayClients);
+              return clientList.length > 0 ? (
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
+                  {clientList.map((c, i) => (
+                    <div key={i} style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                      <div style={{width: 14, height: 14, borderRadius: 4, background: c.color}}></div>
+                      <span style={{fontSize: 13, color: '#ccd6f6'}}>{c.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null;
+            })()}
+
+            {[1, 2, 3].map(roomNumber => {
+              const roomBookings = dayBookings.filter(b => b.roomNumber === roomNumber);
+              return (
+                <div key={roomNumber} className="room-section" style={{marginBottom: 20}}>
+                  <div className="room-title"><span className="room-badge">Кабинет {roomNumber}</span></div>
+                  
+                  <div className="hour-grid" style={{gridTemplateColumns: 'repeat(12, 1fr)', gap: 3, marginBottom: 12}}>
+                    {slots.map(slot => {
+                      const daily = getDailyBooking(roomNumber, selectedDay.date);
+                      const booking = daily || getBookingForSlot(roomNumber, selectedDay.date, slot);
+                      const color = booking ? getClientColor(booking.userId, clientColorMap, booking.userPhone) : null;
+                      return (
+                        <div 
+                          key={slot}
+                          onClick={() => { if (booking) setSelectedBooking(booking); }}
+                          style={{
+                            padding: '6px 2px', borderRadius: 6, textAlign: 'center', fontSize: 11, cursor: booking ? 'pointer' : 'default',
+                            background: color ? color + '99' : 'rgba(255,255,255,0.05)',
+                            border: color ? '1px solid ' + color : '1px solid rgba(255,255,255,0.1)',
+                            color: '#fff'
+                          }}
+                          title={booking ? booking.userName + ' ' + slotToTime(slot) : slotToTime(slot)}
+                        >
+                          {slotToTime(slot)}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {roomBookings.length > 0 && (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                      {roomBookings.map(b => (
+                        <div key={b.id} onClick={() => setSelectedBooking(b)} style={{
+                          padding: '10px 14px', borderRadius: 10, cursor: 'pointer',
+                          background: 'rgba(255,255,255,0.04)',
+                          borderLeft: '4px solid ' + getClientColor(b.userId, clientColorMap, b.userPhone)
+                        }}>
+                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <span style={{fontWeight: 600, color: getClientColor(b.userId, clientColorMap, b.userPhone)}}>{b.userName}</span>
+                            <span style={{fontSize: 12, color: '#8892b0'}}>{b.price} ₽</span>
+                          </div>
+                          <div style={{fontSize: 13, color: '#8892b0', marginTop: 4}}>
+                            {b.bookingType === 'daily' ? '10:00 - 22:00 (весь день)' : slotToTime(b.startHour) + ' - ' + slotToTime(b.startHour + b.duration)}
+                          </div>
+                          {b.userPhone && <div style={{fontSize: 12, color: '#8892b0', marginTop: 2}}>{b.userPhone}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {roomBookings.length === 0 && <div style={{fontSize: 13, color: '#8892b0', padding: 8}}>Нет бронирований</div>}
+                </div>
+              );
+            })}
+
+            {selectedBooking && (
+              <div className="booking-details" style={{marginBottom: 20}}>
+                <h4>Детали бронирования</h4>
+                <div style={{width: 16, height: 16, borderRadius: 4, background: getClientColor(selectedBooking.userId, clientColorMap, selectedBooking.userPhone), display: 'inline-block', marginRight: 8, verticalAlign: 'middle'}}></div>
+                <span style={{fontWeight: 600, color: getClientColor(selectedBooking.userId, clientColorMap, selectedBooking.userPhone)}}>{selectedBooking.userName}</span>
+                <p><strong>Телефон:</strong> {selectedBooking.userPhone || 'Не указан'}</p>
+                <p><strong>Кабинет:</strong> {selectedBooking.roomNumber}</p>
+                <p><strong>Время:</strong> {selectedBooking.bookingType === 'daily' ? '10:00 - 22:00 (весь день)' : slotToTime(selectedBooking.startHour) + ' - ' + slotToTime(selectedBooking.startHour + selectedBooking.duration)}</p>
+                <p><strong>Стоимость:</strong> {selectedBooking.price} ₽</p>
+                {editingBooking === selectedBooking.id ? (
+                  <BookingEditForm
+                    booking={selectedBooking}
+                    slotToTime={slotToTime}
+                    onSave={() => { setEditingBooking(null); setSelectedBooking(null); fetchBookings(); }}
+                    onCancel={() => setEditingBooking(null)}
+                  />
+                ) : (
+                  <div style={{display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8}}>
+                    <button className="cancel-btn-small" style={{background: 'rgba(74,144,226,0.2)', color: '#4A90E2'}} onClick={() => setEditingBooking(selectedBooking.id)}>Редактировать</button>
+                    <button className="cancel-btn-small" onClick={() => cancelBooking(selectedBooking.id)}>Отменить</button>
+                    <button className="cancel-btn-small" style={{background: 'rgba(255,255,255,0.1)', color: '#8892b0'}} onClick={() => setSelectedBooking(null)}>Закрыть</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      const legendClients = getLegendClients();
+
+      return (
+        <div>
+          <h2 className="section-title">Почасовой режим (30 дней)</h2>
+          
+          {legendClients.length > 0 && (
+            <div style={{marginBottom: 16}}>
+              <div style={{fontSize: 13, color: '#8892b0', marginBottom: 8}}>Клиенты:</div>
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: 8}}>
+                {legendClients.map((c, i) => (
+                  <div key={i} style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                    <div style={{width: 14, height: 14, borderRadius: 4, background: c.color}}></div>
+                    <span style={{fontSize: 13, color: '#ccd6f6'}}>{c.name}</span>
+                  </div>
+                ))}
+                <div style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                  <div style={{width: 14, height: 14, borderRadius: 4, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)'}}></div>
+                  <span style={{fontSize: 13, color: '#8892b0'}}>Свободно</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {days.map(day => {
+            const dayBookings = bookings.filter(b => b.date === day.date);
+            const hasBookings = dayBookings.length > 0;
+            return (
+              <div key={day.date} style={{marginBottom: 20, background: 'rgba(255,255,255,0.02)', borderRadius: 12, padding: '12px 14px'}}>
+                <div 
+                  style={{fontSize: 14, fontWeight: 600, color: hasBookings ? '#ccd6f6' : '#8892b0', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8}}
+                  onClick={() => setSelectedDay(day)}
+                >
+                  <span>{day.dayName}, {day.dayNum} {day.monthName}</span>
+                  {hasBookings && <span style={{fontSize: 11, color: '#4A90E2'}}>({dayBookings.length} брон.)</span>}
+                  <span style={{fontSize: 11, color: '#4A90E2', marginLeft: 'auto'}}>подробнее →</span>
+                </div>
+                {[1, 2, 3].map(roomNumber => {
+                  const roomDayBookings = dayBookings.filter(b => b.roomNumber === roomNumber);
+                  return (
+                    <div key={roomNumber} style={{marginBottom: 8}}>
+                      <div style={{fontSize: 12, color: '#8892b0', marginBottom: 4}}>Кабинет {roomNumber}</div>
+                      <div className="hour-grid" style={{gridTemplateColumns: 'repeat(24, 1fr)'}}>
+                        {slots.map(slot => {
+                          const cellStyle = getCellStyle(roomNumber, day.date, slot);
+                          const booking = getDailyBooking(roomNumber, day.date) || getBookingForSlot(roomNumber, day.date, slot);
+                          return (
+                            <div 
+                              key={slot} 
+                              className="hour-cell"
+                              onClick={() => setSelectedDay(day)}
+                              style={{...cellStyle, cursor: 'pointer', fontSize: '8px', padding: '4px 1px', borderRadius: 3, textAlign: 'center', color: '#fff'}}
+                              title={booking ? booking.userName + ' ' + slotToTime(slot) : slotToTime(slot)}
+                            >
+                              {slotToTime(slot)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function normalizePhoneClient(phone) {
+      if (!phone) return '';
+      let digits = phone.replace(/[^0-9]/g, '');
+      if (digits.startsWith('7') && digits.length === 11) digits = digits.substring(1);
+      else if (digits.startsWith('8') && digits.length === 11) digits = digits.substring(1);
+      return digits;
+    }
+
+    function AdminBookingForm({ onClose }) {
+      const [clients, setClients] = useState([]);
+      const [clientMode, setClientMode] = useState('existing');
+      const [selectedClientId, setSelectedClientId] = useState('');
+      const [newClientName, setNewClientName] = useState('');
+      const [newClientPhone, setNewClientPhone] = useState('');
+      const [suggestions, setSuggestions] = useState([]);
+      const [selectedRoom, setSelectedRoom] = useState(1);
+      const [bookingType, setBookingType] = useState('hourly');
+      const [selectedDate, setSelectedDate] = useState(new Date());
+      const [startSlot, setStartSlot] = useState(null);
+      const [endSlot, setEndSlot] = useState(null);
+      const [bookedSlots, setBookedSlots] = useState([]);
+      const [isLoading, setIsLoading] = useState(false);
+      const [error, setError] = useState('');
+
+      useEffect(() => {
+        fetch(API_BASE + '/api/users/clients').then(r => r.json()).then(setClients).catch(console.error);
+      }, []);
+
+      useEffect(() => {
+        if (bookingType === 'hourly') {
+          const dateStr = selectedDate.toISOString().split('T')[0];
+          fetch(API_BASE + '/api/bookings/' + selectedRoom + '/' + dateStr)
+            .then(r => r.json())
+            .then(data => setBookedSlots(Array.isArray(data) ? data : []))
+            .catch(() => setBookedSlots([]));
+        }
+      }, [selectedRoom, selectedDate, bookingType]);
+
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+      const slots = Array.from({length: 24}, (_, i) => i + 20);
+
+      const isSlotBooked = (slot) => {
+        return bookedSlots.some(b => {
+          if (b.bookingType === 'daily') return true;
+          if (b.startHour === null || b.startHour === undefined) return false;
+          return slot >= b.startHour && slot < b.startHour + (b.duration || 2);
+        });
+      };
+
+      const dates = [];
+      for (let i = 0; i < (bookingType === 'hourly' ? 30 : 90); i++) {
+        const d = new Date(); d.setDate(d.getDate() + i); dates.push(d);
+      }
+
+      const getAvailableEndSlots = () => {
+        if (startSlot === null) return [];
+        const available = [];
+        for (let s = startSlot + 2; s <= 44; s++) {
+          let ok = true;
+          for (let c = startSlot; c < s; c++) {
+            if (isSlotBooked(c)) { ok = false; break; }
+          }
+          if (ok) available.push(s); else break;
+        }
+        return available;
+      };
+
+      const calculatePrice = () => {
+        if (bookingType === 'daily') return 3200;
+        if (startSlot === null || endSlot === null) return 0;
+        return (endSlot - startSlot) * 200;
+      };
+
+      const updateSuggestions = (name, phone) => {
+        if (!name && !phone) { setSuggestions([]); return; }
+        const normPhone = normalizePhoneClient(phone);
+        const filtered = clients.filter(c => {
+          const nameMatch = name && c.name.toLowerCase().includes(name.toLowerCase());
+          const phoneMatch = normPhone && normalizePhoneClient(c.phone).includes(normPhone);
+          return nameMatch || phoneMatch;
+        });
+        setSuggestions(filtered.slice(0, 5));
+      };
+
+      const selectSuggestion = (client) => {
+        setNewClientName(client.name);
+        setNewClientPhone(client.phone);
+        setSuggestions([]);
+        setClientMode('existing');
+        setSelectedClientId(client.id);
+      };
+
+      const handleSubmit = async () => {
+        setError('');
+        let userId, userName, userPhone;
+        if (clientMode === 'existing') {
+          const client = clients.find(c => c.id === selectedClientId);
+          if (!client) { setError('Выберите клиента'); return; }
+          userId = client.id; userName = client.name; userPhone = client.phone;
+        } else {
+          if (!newClientName) { setError('Введите имя клиента'); return; }
+          if (!newClientPhone) { setError('Введите телефон клиента'); return; }
+          const normPhone = normalizePhoneClient(newClientPhone);
+          const existingByPhone = clients.find(c => normalizePhoneClient(c.phone) === normPhone);
+          if (existingByPhone) {
+            userId = existingByPhone.id; userName = existingByPhone.name; userPhone = existingByPhone.phone;
+          } else {
+            userId = 'walk_in_' + Date.now(); userName = newClientName; userPhone = normPhone;
+          }
+        }
+        if (bookingType === 'hourly' && (startSlot === null || endSlot === null)) {
+          setError('Выберите время'); return;
+        }
+
+        setIsLoading(true);
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const booking = {
+          roomNumber: selectedRoom,
+          date: dateStr,
+          bookingType,
+          startHour: bookingType === 'daily' ? 20 : startSlot,
+          duration: bookingType === 'daily' ? 24 : (endSlot - startSlot),
+          userId, userName, userPhone,
+          price: calculatePrice()
+        };
+
+        try {
+          const res = await fetch(API_BASE + '/api/bookings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(booking)
+          });
+          if (res.ok) {
+            alert('Бронирование создано!');
+            onClose();
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            setError(errData.error || 'Ошибка при создании бронирования');
+          }
+        } catch (err) {
+          setError('Ошибка подключения к серверу');
+        }
+        setIsLoading(false);
+      };
+
+      const availableEndSlots = getAvailableEndSlots();
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <button className="back-btn" onClick={onClose}>← Назад к бронированиям</button>
+          <h2 className="section-title">Создать бронирование</h2>
+
+          {error && <div className="error">{error}</div>}
+
+          <div className="card">
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Клиент</div>
+            <div className="mode-tabs" style={{marginBottom: 12}}>
+              <button className={'mode-tab' + (clientMode === 'existing' ? ' active' : '')} onClick={() => setClientMode('existing')}>Существующий</button>
+              <button className={'mode-tab' + (clientMode === 'new' ? ' active' : '')} onClick={() => setClientMode('new')}>Новый</button>
+            </div>
+            {clientMode === 'existing' ? (
+              <select className="input" value={selectedClientId} onChange={(e) => setSelectedClientId(e.target.value)}>
+                <option value="">Выберите клиента</option>
+                {clients.map(c => (
+                  <option key={c.id} value={c.id}>{c.name} ({c.phone || 'без телефона'})</option>
+                ))}
+              </select>
+            ) : (
+              <div style={{position: 'relative'}}>
+                <input className="input" placeholder="Имя клиента *" value={newClientName} onChange={(e) => { setNewClientName(e.target.value); updateSuggestions(e.target.value, newClientPhone); }} />
+                <input className="input" placeholder="Телефон клиента *" value={newClientPhone} onChange={(e) => { setNewClientPhone(e.target.value); updateSuggestions(newClientName, e.target.value); }} />
+                {suggestions.length > 0 && (
+                  <div style={{background: 'rgba(30,30,40,0.95)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10, marginTop: 4, overflow: 'hidden'}}>
+                    <div style={{padding: '6px 12px', fontSize: 11, color: 'rgba(255,255,255,0.5)', borderBottom: '1px solid rgba(255,255,255,0.1)'}}>Найденные клиенты:</div>
+                    {suggestions.map(s => (
+                      <div key={s.id} onClick={() => selectSuggestion(s)} style={{padding: '10px 12px', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: 13}} onMouseOver={(e) => e.currentTarget.style.background='rgba(74,144,226,0.2)'} onMouseOut={(e) => e.currentTarget.style.background='transparent'}>
+                        {s.name} <span style={{color: 'rgba(255,255,255,0.5)'}}>({s.phone || '—'})</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="card">
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Кабинет</div>
+            <div style={{display: 'flex', gap: 8}}>
+              {[1, 2, 3].map(room => (
+                <button key={room} className="btn" style={{flex: 1, background: selectedRoom === room ? '#4A90E2' : 'rgba(255,255,255,0.1)', color: '#fff'}} onClick={() => { setSelectedRoom(room); setStartSlot(null); setEndSlot(null); }}>
+                  Кабинет {room}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="card">
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Тип бронирования</div>
+            <div className="mode-tabs" style={{marginBottom: 12}}>
+              <button className={'mode-tab' + (bookingType === 'hourly' ? ' active' : '')} onClick={() => { setBookingType('hourly'); setStartSlot(null); setEndSlot(null); }}>Почасовая</button>
+              <button className={'mode-tab' + (bookingType === 'daily' ? ' active' : '')} onClick={() => { setBookingType('daily'); setStartSlot(null); setEndSlot(null); }}>На день</button>
+            </div>
+          </div>
+
+          <div className="card">
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Дата</div>
+            {bookingType === 'hourly' ? (
+              <div style={{display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8}}>
+                {dates.map((d, i) => {
+                  const isSelected = d.toISOString().split('T')[0] === selectedDate.toISOString().split('T')[0];
+                  return (
+                    <div key={i} onClick={() => { setSelectedDate(d); setStartSlot(null); setEndSlot(null); }} style={{
+                      minWidth: 60, padding: '10px 8px', borderRadius: 12, textAlign: 'center', cursor: 'pointer',
+                      background: isSelected ? '#4A90E2' : 'rgba(255,255,255,0.05)',
+                      border: isSelected ? '1px solid #4A90E2' : '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                      <div style={{fontSize: 11, color: isSelected ? '#fff' : '#8892b0'}}>{d.toLocaleDateString('ru-RU', {weekday: 'short'})}</div>
+                      <div style={{fontSize: 18, fontWeight: 600}}>{d.getDate()}</div>
+                      <div style={{fontSize: 11, color: isSelected ? '#fff' : '#8892b0'}}>{d.toLocaleDateString('ru-RU', {month: 'short'})}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <input type="date" className="input" value={selectedDate.toISOString().split('T')[0]} onChange={(e) => setSelectedDate(new Date(e.target.value))} />
+            )}
+          </div>
+
+          {bookingType === 'hourly' && (
+            <div className="card">
+              <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Начало</div>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6}}>
+                {slots.map(slot => {
+                  const booked = isSlotBooked(slot);
+                  const selected = startSlot === slot;
+                  return (
+                    <div key={slot} onClick={() => { if (!booked) { setStartSlot(slot); setEndSlot(null); } }} style={{
+                      padding: '10px 4px', borderRadius: 8, textAlign: 'center', cursor: booked ? 'not-allowed' : 'pointer', fontSize: 13,
+                      background: selected ? '#4A90E2' : booked ? 'rgba(231,76,60,0.3)' : 'rgba(255,255,255,0.05)',
+                      border: selected ? '1px solid #4A90E2' : booked ? '1px solid rgba(231,76,60,0.5)' : '1px solid rgba(255,255,255,0.1)',
+                      opacity: booked ? 0.5 : 1
+                    }}>
+                      {slotToTime(slot)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {bookingType === 'hourly' && startSlot !== null && (
+            <div className="card">
+              <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Конец</div>
+              {availableEndSlots.length > 0 ? (
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6}}>
+                  {availableEndSlots.map(slot => {
+                    const selected = endSlot === slot;
+                    return (
+                      <div key={slot} onClick={() => setEndSlot(slot)} style={{
+                        padding: '10px 4px', borderRadius: 8, textAlign: 'center', cursor: 'pointer', fontSize: 13,
+                        background: selected ? '#4A90E2' : 'rgba(255,255,255,0.05)',
+                        border: selected ? '1px solid #4A90E2' : '1px solid rgba(255,255,255,0.1)'
+                      }}>
+                        {slotToTime(slot)}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{color: '#8892b0', fontSize: 13}}>Нет доступных слотов</div>
+              )}
+            </div>
+          )}
+
+          <div className="card">
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8}}>Итого</div>
+            {bookingType === 'hourly' && startSlot !== null && endSlot !== null && (
+              <div style={{color: '#8892b0', fontSize: 13, marginBottom: 8}}>
+                {slotToTime(startSlot)} - {slotToTime(endSlot)} ({endSlot - startSlot} x 30 мин)
+              </div>
+            )}
+            <div style={{fontSize: 24, fontWeight: 700, color: '#4A90E2'}}>{calculatePrice()} ₽</div>
+          </div>
+
+          <button className="btn btn-primary" onClick={handleSubmit} disabled={isLoading} style={{marginTop: 8}}>
+            {isLoading ? 'Создание...' : 'Создать бронирование'}
+          </button>
+        </div>
+      );
+    }
+
+    function DailyBookingsView() {
+      const [bookings, setBookings] = useState([]);
+      const [currentMonth, setCurrentMonth] = useState(new Date());
+      const [selectedBooking, setSelectedBooking] = useState(null);
+      const [selectedDay, setSelectedDay] = useState(null);
+      const [editingBooking, setEditingBooking] = useState(null);
+      const clientColorMap = useRef({});
+
+      useEffect(() => {
+        fetchBookings();
+        const interval = setInterval(fetchBookings, 15000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchBookings = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/bookings`);
+          const data = await res.json();
+          setBookings(data.filter(b => b.bookingType === 'daily'));
+        } catch (err) {
+          console.error('Error fetching bookings:', err);
+        }
+      };
+
+      const cancelBooking = async (id) => {
+        if (!confirm('Отменить бронирование?')) return;
+        try {
+          await fetch(`${API_BASE}/api/bookings/${id}`, { method: 'DELETE' });
+          setSelectedBooking(null);
+          fetchBookings();
+        } catch (err) {
+          console.error('Error canceling booking:', err);
+        }
+      };
+
+      const today = new Date();
+      const maxDate = new Date();
+      maxDate.setDate(today.getDate() + 90);
+
+      const calendarDays = useMemo(() => {
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        const days = [];
+        const startDayOfWeek = (firstDay.getDay() + 6) % 7;
+        
+        for (let i = startDayOfWeek - 1; i >= 0; i--) {
+          const d = new Date(year, month, -i);
+          days.push({ date: d, otherMonth: true });
+        }
+        
+        for (let i = 1; i <= lastDay.getDate(); i++) {
+          days.push({ date: new Date(year, month, i), otherMonth: false });
+        }
+        
+        const remaining = 42 - days.length;
+        for (let i = 1; i <= remaining; i++) {
+          days.push({ date: new Date(year, month + 1, i), otherMonth: true });
+        }
+        
+        return days;
+      }, [currentMonth]);
+
+      const getBookingsForDate = (date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        return bookings.filter(b => b.date === dateStr);
+      };
+
+      const getBookingsForRoom = (roomNumber, date) => {
+        const dateStr = date.toISOString().split('T')[0];
+        return bookings.filter(b => b.date === dateStr && b.roomNumber === roomNumber);
+      };
+
+      const canGoBack = () => {
+        const prevMonth = new Date(currentMonth);
+        prevMonth.setMonth(prevMonth.getMonth() - 1);
+        return prevMonth >= new Date(today.getFullYear(), today.getMonth(), 1);
+      };
+
+      const canGoForward = () => {
+        const nextMonth = new Date(currentMonth);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        return nextMonth <= maxDate;
+      };
+
+      const weekDays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+      const getLegendClients = () => {
+        const seen = {};
+        bookings.forEach(b => {
+          const key = (b.userPhone ? normalizePhoneClient(b.userPhone) : null) || b.userId;
+          if (!seen[key]) {
+            seen[key] = { name: b.userName, color: getClientColor(b.userId, clientColorMap, b.userPhone) };
+          }
+        });
+        return Object.values(seen);
+      };
+
+      if (selectedDay) {
+        const dayBookings = getBookingsForDate(selectedDay);
+        const dayLabel = selectedDay.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        return (
+          <div>
+            <button className="back-btn" onClick={() => { setSelectedDay(null); setSelectedBooking(null); }}>← Назад к календарю</button>
+            <h2 className="section-title">{dayLabel}</h2>
+
+            {(() => {
+              const dayClients = {};
+              dayBookings.forEach(b => {
+                const key = (b.userPhone ? normalizePhoneClient(b.userPhone) : null) || b.userId;
+                if (!dayClients[key]) dayClients[key] = { name: b.userName, color: getClientColor(b.userId, clientColorMap, b.userPhone) };
+              });
+              const clientList = Object.values(dayClients);
+              return clientList.length > 0 ? (
+                <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
+                  {clientList.map((c, i) => (
+                    <div key={i} style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                      <div style={{width: 14, height: 14, borderRadius: 4, background: c.color}}></div>
+                      <span style={{fontSize: 13, color: '#ccd6f6'}}>{c.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null;
+            })()}
+
+            {[1, 2, 3].map(roomNumber => {
+              const roomBookings = getBookingsForRoom(roomNumber, selectedDay);
+              return (
+                <div key={roomNumber} className="room-section" style={{marginBottom: 20}}>
+                  <div className="room-title"><span className="room-badge">Кабинет {roomNumber}</span></div>
+                  
+                  {roomBookings.length > 0 ? (
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 8}}>
+                      {roomBookings.map(b => (
+                        <div key={b.id} onClick={() => setSelectedBooking(b)} style={{
+                          padding: '12px 14px', borderRadius: 10, cursor: 'pointer',
+                          background: 'rgba(255,255,255,0.04)',
+                          borderLeft: '4px solid ' + getClientColor(b.userId, clientColorMap, b.userPhone)
+                        }}>
+                          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <span style={{fontWeight: 600, color: getClientColor(b.userId, clientColorMap, b.userPhone)}}>{b.userName}</span>
+                            <span style={{fontSize: 12, color: '#8892b0'}}>{b.price} ₽</span>
+                          </div>
+                          <div style={{fontSize: 13, color: '#8892b0', marginTop: 4}}>10:00 - 22:00 (весь день)</div>
+                          {b.userPhone && <div style={{fontSize: 12, color: '#8892b0', marginTop: 2}}>{b.userPhone}</div>}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{fontSize: 13, color: '#8892b0', padding: 8}}>Нет бронирований</div>
+                  )}
+                </div>
+              );
+            })}
+
+            {selectedBooking && (
+              <div className="booking-details" style={{marginTop: 16, marginBottom: 20}}>
+                <h4>Детали бронирования</h4>
+                <div style={{width: 16, height: 16, borderRadius: 4, background: getClientColor(selectedBooking.userId, clientColorMap, selectedBooking.userPhone), display: 'inline-block', marginRight: 8, verticalAlign: 'middle'}}></div>
+                <span style={{fontWeight: 600, color: getClientColor(selectedBooking.userId, clientColorMap, selectedBooking.userPhone)}}>{selectedBooking.userName}</span>
+                <p><strong>Кабинет:</strong> {selectedBooking.roomNumber}</p>
+                <p><strong>Телефон:</strong> {selectedBooking.userPhone || 'Не указан'}</p>
+                <p><strong>Дата:</strong> {selectedBooking.date}</p>
+                <p><strong>Время:</strong> 10:00 - 22:00 (на весь день)</p>
+                <p><strong>Стоимость:</strong> {selectedBooking.price} ₽</p>
+                {editingBooking === selectedBooking.id ? (
+                  <BookingEditForm
+                    booking={selectedBooking}
+                    slotToTime={(s) => { const h = Math.floor(s / 2); const m = (s % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); }}
+                    onSave={() => { setEditingBooking(null); setSelectedBooking(null); fetchBookings(); }}
+                    onCancel={() => setEditingBooking(null)}
+                  />
+                ) : (
+                  <div style={{display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8}}>
+                    <button className="cancel-btn-small" style={{background: 'rgba(74,144,226,0.2)', color: '#4A90E2'}} onClick={() => setEditingBooking(selectedBooking.id)}>Редактировать</button>
+                    <button className="cancel-btn-small" onClick={() => cancelBooking(selectedBooking.id)}>Отменить</button>
+                    <button className="cancel-btn-small" style={{background: 'rgba(255,255,255,0.1)', color: '#8892b0'}} onClick={() => setSelectedBooking(null)}>Закрыть</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      const legendClients = getLegendClients();
+
+      return (
+        <div>
+          <h2 className="section-title">Посуточный режим (90 дней)</h2>
+          
+          {legendClients.length > 0 && (
+            <div style={{marginBottom: 16}}>
+              <div style={{fontSize: 13, color: '#8892b0', marginBottom: 8}}>Клиенты:</div>
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: 8}}>
+                {legendClients.map((c, i) => (
+                  <div key={i} style={{display: 'flex', alignItems: 'center', gap: 6}}>
+                    <div style={{width: 14, height: 14, borderRadius: 4, background: c.color}}></div>
+                    <span style={{fontSize: 13, color: '#ccd6f6'}}>{c.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="month-nav">
+            <button onClick={() => {
+              const prev = new Date(currentMonth);
+              prev.setMonth(prev.getMonth() - 1);
+              setCurrentMonth(prev);
+            }} disabled={!canGoBack()}>
+              ←
+            </button>
+            <span className="month-title">
+              {currentMonth.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}
+            </span>
+            <button onClick={() => {
+              const next = new Date(currentMonth);
+              next.setMonth(next.getMonth() + 1);
+              setCurrentMonth(next);
+            }} disabled={!canGoForward()}>
+              →
+            </button>
+          </div>
+
+          {[1, 2, 3].map(roomNumber => (
+            <div key={roomNumber} style={{marginBottom: 24}}>
+              <h3 style={{fontSize: 16, fontWeight: 600, marginBottom: 12}}>
+                Кабинет {roomNumber}
+              </h3>
+              <div className="calendar-grid">
+                {weekDays.map(d => (
+                  <div key={d} className="calendar-header">{d}</div>
+                ))}
+                {calendarDays.map((day, i) => {
+                  const dateBookings = getBookingsForRoom(roomNumber, day.date);
+                  const isToday = day.date.toDateString() === today.toDateString();
+                  const booking = dateBookings.length > 0 ? dateBookings[0] : null;
+                  const color = booking ? getClientColor(booking.userId, clientColorMap, booking.userPhone) : null;
+                  return (
+                    <div 
+                      key={i} 
+                      className={`calendar-day ${isToday ? 'today' : ''} ${day.otherMonth ? 'other-month' : ''}`}
+                      onClick={() => setSelectedDay(day.date)}
+                      style={{
+                        cursor: 'pointer',
+                        background: color ? color + '33' : undefined,
+                        border: color ? '2px solid ' + color : undefined
+                      }}
+                    >
+                      {day.date.getDate()}
+                      {booking && <div style={{width: 8, height: 8, borderRadius: '50%', background: color, margin: '2px auto 0'}}></div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function BookingsScreen() {
+      const [mode, setMode] = useState('hourly');
+      const [showBookingForm, setShowBookingForm] = useState(false);
+
+      if (showBookingForm) {
+        return <AdminBookingForm onClose={() => setShowBookingForm(false)} />;
+      }
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Управление бронированиями</h2>
+          <button className="btn btn-primary" style={{marginBottom: 16}} onClick={() => setShowBookingForm(true)}>
+            Создать бронирование
+          </button>
+          <div className="mode-tabs">
+            <button 
+              className={`mode-tab ${mode === 'hourly' ? 'active' : ''}`} 
+              onClick={() => setMode('hourly')}
+            >
+              Почасовая (30 дней)
+            </button>
+            <button 
+              className={`mode-tab ${mode === 'daily' ? 'active' : ''}`} 
+              onClick={() => setMode('daily')}
+            >
+              Посуточная (90 дней)
+            </button>
+          </div>
+
+          {mode === 'hourly' ? <HourlyBookingsView /> : <DailyBookingsView />}
+        </div>
+      );
+    }
+
+    function ChatsListScreen({ onSelectChat }) {
+      const [chats, setChats] = useState([]);
+
+      useEffect(() => {
+        fetchChats();
+        const interval = setInterval(fetchChats, 10000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchChats = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/chats`);
+          const data = await res.json();
+          setChats(data);
+        } catch (err) {
+          console.error('Error fetching chats:', err);
+        }
+      };
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Чаты с клиентами</h2>
+          {chats.length === 0 ? (
+            <div className="empty-state">Нет активных чатов</div>
+          ) : (
+            chats.slice().sort((a, b) => {
+              const ta = a.lastMessageTime ? new Date(a.lastMessageTime).getTime() : 0;
+              const tb = b.lastMessageTime ? new Date(b.lastMessageTime).getTime() : 0;
+              return tb - ta;
+            }).map(chat => {
+              const timeStr = chat.lastMessageTime ? (() => {
+                const d = new Date(chat.lastMessageTime);
+                const now = new Date();
+                const today = now.toDateString();
+                const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+                const time = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                if (d.toDateString() === today) return time;
+                if (d.toDateString() === yesterday.toDateString()) return 'Вчера ' + time;
+                return d.getDate() + '.' + (d.getMonth()+1).toString().padStart(2, '0') + ' ' + time;
+              })() : '';
+              return (
+                <div key={chat.id} className="chat-item" onClick={() => onSelectChat(chat)}>
+                  <div className="chat-avatar">{chat.clientName[0]}</div>
+                  <div className="chat-info">
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <div className="chat-name">{chat.clientName}</div>
+                      {timeStr && <div style={{fontSize: 11, color: '#6c7293', whiteSpace: 'nowrap'}}>{timeStr}</div>}
+                    </div>
+                    <div className="chat-preview">{chat.lastMessage || 'Нет сообщений'}</div>
+                  </div>
+                  {chat.unreadCount > 0 && (
+                    <div className="unread-badge">{chat.unreadCount}</div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    function ChatScreen({ chat, onBack }) {
+      const [messages, setMessages] = useState([]);
+      const [newMessage, setNewMessage] = useState('');
+
+      useEffect(() => {
+        fetchMessages();
+        markAsRead();
+        const interval = setInterval(fetchMessages, 5000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchMessages = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/messages/${chat.id}`);
+          const data = await res.json();
+          setMessages(data);
+        } catch (err) {
+          console.error('Error fetching messages:', err);
+        }
+      };
+
+      const markAsRead = async () => {
+        try {
+          await fetch(`${API_BASE}/api/chats/${chat.id}/read`, { method: 'PUT' });
+        } catch (err) {
+          console.error('Error marking as read:', err);
+        }
+      };
+
+      const sendMessage = async (e) => {
+        e.preventDefault();
+        if (!newMessage.trim()) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chatId: chat.id,
+              text: newMessage,
+              senderId: 'admin',
+              senderName: 'Администратор',
+              senderRole: 'admin'
+            })
+          });
+          if (res.ok) {
+            setNewMessage('');
+            fetchMessages();
+          }
+        } catch (err) {
+          console.error('Error sending message:', err);
+        }
+      };
+
+      return (
+        <div className="container">
+          <button className="back-btn" onClick={onBack}>
+            ← {chat.clientName}
+          </button>
+          
+          <div className="message-list">
+            {messages.map(msg => {
+              const msgTime = msg.timestamp ? (() => {
+                const d = new Date(msg.timestamp);
+                const now = new Date();
+                const today = now.toDateString();
+                const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+                const time = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                if (d.toDateString() === today) return time;
+                if (d.toDateString() === yesterday.toDateString()) return 'Вчера ' + time;
+                return d.getDate() + '.' + (d.getMonth()+1).toString().padStart(2, '0') + ' ' + time;
+              })() : '';
+              return (
+                <div 
+                  key={msg.id} 
+                  className={`message ${msg.senderRole === 'admin' ? 'sent' : 'received'}`}
+                >
+                  <div>{msg.text}</div>
+                  {msgTime && <div style={{fontSize: 10, color: msg.senderRole === 'admin' ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.4)', marginTop: 4, textAlign: 'right'}}>{msgTime}</div>}
+                </div>
+              );
+            })}
+          </div>
+
+          <form className="message-input-container" onSubmit={sendMessage}>
+            <input
+              type="text"
+              className="message-input"
+              placeholder="Введите сообщение..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+            />
+            <button type="submit" className="send-btn">→</button>
+          </form>
+        </div>
+      );
+    }
+
+    function ModerationScreen() {
+      const [cancellations, setCancellations] = useState([]);
+      const [clients, setClients] = useState([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        Promise.all([
+          fetch(API_BASE + '/api/cancellations').then(r => r.json()),
+          fetch(API_BASE + '/api/users/clients').then(r => r.json())
+        ]).then(([cancData, clientData]) => {
+          setCancellations(Array.isArray(cancData) ? cancData : []);
+          setClients(Array.isArray(clientData) ? clientData : []);
+          setLoading(false);
+        }).catch(() => setLoading(false));
+      }, []);
+
+      const now = new Date();
+      const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+      const getClientStats = () => {
+        const statsMap = {};
+        cancellations.forEach(c => {
+          const key = c.userPhone || c.userId;
+          if (!statsMap[key]) {
+            statsMap[key] = { userId: c.userId, userName: c.userName, userPhone: c.userPhone, total: 0, thisMonth: 0, hourly: 0, daily: 0, cancellations: [] };
+          }
+          statsMap[key].total++;
+          statsMap[key].cancellations.push(c);
+          if (c.bookingType === 'hourly') statsMap[key].hourly++;
+          else statsMap[key].daily++;
+          const cancelDate = new Date(c.cancelledAt);
+          if (cancelDate >= monthAgo) {
+            statsMap[key].thisMonth++;
+          }
+        });
+        clients.forEach(cl => {
+          const key = cl.phone || cl.id;
+          if (!statsMap[key]) {
+            statsMap[key] = { userId: cl.id, userName: cl.name, userPhone: cl.phone, total: 0, thisMonth: 0, hourly: 0, daily: 0, cancellations: [] };
+          }
+        });
+        return Object.values(statsMap).sort((a, b) => b.thisMonth - a.thisMonth || b.total - a.total);
+      };
+
+      const [expandedClient, setExpandedClient] = useState(null);
+      const clientStats = getClientStats();
+
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+
+      if (loading) {
+        return <div className="container" style={{paddingBottom: 120, textAlign: 'center', paddingTop: 40, color: '#8892b0'}}>Загрузка...</div>;
+      }
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Модерация отмен</h2>
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <div>
+                <div style={{fontSize: 13, color: '#8892b0'}}>Всего отмен</div>
+                <div style={{fontSize: 24, fontWeight: 700}}>{cancellations.length}</div>
+              </div>
+              <div>
+                <div style={{fontSize: 13, color: '#8892b0'}}>За месяц</div>
+                <div style={{fontSize: 24, fontWeight: 700}}>{cancellations.filter(c => new Date(c.cancelledAt) >= monthAgo).length}</div>
+              </div>
+              <div>
+                <div style={{fontSize: 13, color: '#8892b0'}}>Клиентов</div>
+                <div style={{fontSize: 24, fontWeight: 700}}>{clientStats.filter(s => s.total > 0).length}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{fontSize: 13, color: '#e74c3c', marginBottom: 12, padding: '8px 12px', background: 'rgba(231,76,60,0.1)', borderRadius: 8}}>
+            Красным выделены клиенты с более чем 2 отменами за месяц
+          </div>
+
+          {clientStats.length === 0 ? (
+            <div className="empty-state" style={{color: '#8892b0', textAlign: 'center', padding: 40}}>Нет данных об отменах</div>
+          ) : (
+            clientStats.map(stat => {
+              const isWarning = stat.thisMonth > 2;
+              const isExpanded = expandedClient === stat.userId;
+              return (
+                <div key={stat.userId} className="card" style={{
+                  marginBottom: 10,
+                  padding: 14,
+                  border: isWarning ? '2px solid #e74c3c' : '1px solid rgba(255,255,255,0.1)',
+                  background: isWarning ? 'rgba(231,76,60,0.08)' : 'rgba(255,255,255,0.08)',
+                  cursor: 'pointer'
+                }} onClick={() => setExpandedClient(isExpanded ? null : stat.userId)}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: 12}}>
+                      <div style={{
+                        width: 40, height: 40, borderRadius: '50%',
+                        background: isWarning ? '#e74c3c' : '#4A90E2',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 700, fontSize: 16
+                      }}>
+                        {stat.userName ? stat.userName[0].toUpperCase() : '?'}
+                      </div>
+                      <div>
+                        <div style={{fontWeight: 600, fontSize: 15, color: isWarning ? '#e74c3c' : '#fff'}}>{stat.userName}</div>
+                        <div style={{fontSize: 12, color: '#8892b0'}}>{stat.userPhone || 'Телефон не указан'}</div>
+                      </div>
+                    </div>
+                    <div style={{textAlign: 'right'}}>
+                      <div style={{fontSize: 20, fontWeight: 700, color: isWarning ? '#e74c3c' : '#fff'}}>{stat.thisMonth}</div>
+                      <div style={{fontSize: 11, color: '#8892b0'}}>за месяц</div>
+                    </div>
+                  </div>
+
+                  <div style={{display: 'flex', gap: 12, marginTop: 10}}>
+                    <div style={{fontSize: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)'}}>
+                      Всего: {stat.total}
+                    </div>
+                    <div style={{fontSize: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)'}}>
+                      Почасовых: {stat.hourly}
+                    </div>
+                    <div style={{fontSize: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)'}}>
+                      Посуточных: {stat.daily}
+                    </div>
+                  </div>
+
+                  {isExpanded && stat.cancellations.length > 0 && (
+                    <div style={{marginTop: 12, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 10}}>
+                      <div style={{fontSize: 13, fontWeight: 600, marginBottom: 8, color: '#8892b0'}}>История отмен:</div>
+                      {stat.cancellations.map((c, i) => (
+                        <div key={i} style={{fontSize: 12, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between'}}>
+                          <span>Кабинет {c.roomNumber} | {c.date} | {c.bookingType === 'daily' ? 'На день' : 'Почасовая'}</span>
+                          <span style={{color: '#8892b0'}}>{c.price} р.</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    function StatsScreen() {
+      const [stats, setStats] = useState(null);
+      const [period, setPeriod] = useState('month');
+      const [loading, setLoading] = useState(true);
+      const [showCustom, setShowCustom] = useState(false);
+      const [customFrom, setCustomFrom] = useState('');
+      const [customTo, setCustomTo] = useState('');
+      const [compareMode, setCompareMode] = useState(false);
+      const [selectedDay, setSelectedDay] = useState(null);
+
+      useEffect(() => {
+        fetch(API_BASE + '/api/stats').then(r => r.json()).then(data => {
+          setStats(data);
+          setLoading(false);
+        }).catch(() => setLoading(false));
+      }, []);
+
+      if (loading || !stats) {
+        return <div className="container" style={{paddingBottom: 120, textAlign: 'center', paddingTop: 40, color: '#8892b0'}}>Загрузка...</div>;
+      }
+
+      const now = new Date();
+      const toDateStr = (d) => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+
+      const getPeriodRange = (p, offset) => {
+        const ref = offset === 0 ? now : null;
+        let start, end;
+        if (p === 'custom' && customFrom && customTo) {
+          const s = new Date(customFrom + 'T00:00:00');
+          const e = new Date(customTo + 'T23:59:59');
+          const dur = e - s;
+          if (offset === 0) { start = s; end = e; }
+          else { start = new Date(s.getTime() - dur - 86400000); end = new Date(s.getTime() - 86400000); }
+        } else if (p === 'day' && selectedDay) {
+          const d = new Date(selectedDay + 'T00:00:00');
+          if (offset === 0) { start = d; end = new Date(d.getTime() + 86400000 - 1); }
+          else { start = new Date(d.getTime() - 86400000); end = new Date(d.getTime() - 1); }
+        } else {
+          end = offset === 0 ? now : null;
+          if (p === 'week') {
+            start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+            if (offset !== 0) { end = new Date(start.getTime() - 1); start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 14); }
+          } else if (p === 'month') {
+            start = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            if (offset !== 0) { end = new Date(start.getTime() - 1); start = new Date(now.getFullYear(), now.getMonth() - 2, now.getDate()); }
+          } else if (p === '3months') {
+            start = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+            if (offset !== 0) { end = new Date(start.getTime() - 1); start = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate()); }
+          } else {
+            start = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            if (offset !== 0) { end = new Date(start.getTime() - 1); start = new Date(now.getFullYear() - 2, now.getMonth(), now.getDate()); }
+          }
+        }
+        return { start, end: end || now };
+      };
+
+      const isBookingPast = (b) => {
+        const n = new Date();
+        const bd = new Date(b.date + 'T00:00:00');
+        if (bd.toDateString() === n.toDateString()) {
+          if (b.bookingType === 'daily') return n.getHours() >= 22;
+          const endSlot = (b.startHour || 0) + (b.duration || 0);
+          const endH = Math.floor(endSlot / 2);
+          const endM = (endSlot % 2) * 30;
+          return n.getHours() > endH || (n.getHours() === endH && n.getMinutes() >= endM);
+        }
+        return bd < n;
+      };
+
+      const bookingDateToDate = (dateStr) => new Date(dateStr + 'T00:00:00');
+
+      const calcStats = (range) => {
+        const { start, end } = range;
+        const fb = stats.bookings.filter(b => { const d = bookingDateToDate(b.date); return d >= start && d <= end; });
+        const fc = stats.clients.filter(c => { const d = new Date(c.createdAt); return d >= start && d <= end; });
+        const fcan = stats.cancellations.filter(c => { const d = bookingDateToDate(c.date); return d >= start && d <= end; });
+        const bookingsTotal = fb.reduce((s, b) => s + b.price, 0);
+        const pastBookings = fb.filter(b => isBookingPast(b));
+        const revenue = pastBookings.reduce((s, b) => s + b.price, 0);
+        const paidRevenue = pastBookings.filter(b => b.paid).reduce((s, b) => s + b.price, 0);
+        const unpaidRevenue = revenue - paidRevenue;
+        const cashRev = pastBookings.filter(b => b.paid && b.paymentMethod === 'cash').reduce((s, b) => s + b.price, 0);
+        const cardRev = pastBookings.filter(b => b.paid && b.paymentMethod === 'card').reduce((s, b) => s + b.price, 0);
+        return { bookings: fb, clients: fc, cancellations: fcan, bookingsTotal, revenue, paidRevenue, unpaidRevenue, cashRevenue: cashRev, cardRevenue: cardRev, pastBookings };
+      };
+
+      const currentRange = getPeriodRange(period, 0);
+      const current = calcStats(currentRange);
+      const prevRange = compareMode ? getPeriodRange(period, -1) : null;
+      const prev = compareMode ? calcStats(prevRange) : null;
+
+      const getChartData = (items, dateField, rangeStart, rangeEnd) => {
+        const buckets = {};
+        const dayMs = 86400000;
+        const totalDays = Math.max(1, Math.ceil((rangeEnd - rangeStart) / dayMs));
+        const p = period === 'day' ? 1 : period;
+        const bucketCount = Math.min(totalDays, p === 'week' ? 7 : p === 'month' || p === 'custom' ? Math.min(totalDays, 15) : 12);
+
+        for (let i = 0; i < bucketCount; i++) {
+          const bStart = new Date(rangeStart.getTime() + (i / bucketCount) * totalDays * dayMs);
+          const bEnd = i < bucketCount - 1
+            ? new Date(rangeStart.getTime() + ((i + 1) / bucketCount) * totalDays * dayMs)
+            : new Date(rangeEnd.getTime() + dayMs);
+          const label = bStart.getDate() + '.' + (bStart.getMonth() + 1);
+          buckets[label] = { count: 0, sum: 0 };
+          items.forEach(item => {
+            const raw = item[dateField];
+            const d = dateField === 'date' ? new Date(raw + 'T00:00:00') : new Date(raw);
+            if (d >= bStart && d < bEnd) {
+              buckets[label].count++;
+              if (item.price) buckets[label].sum += item.price;
+            }
+          });
+        }
+        return buckets;
+      };
+
+      const regData = getChartData(current.clients, 'createdAt', currentRange.start, currentRange.end);
+      const revenueData = getChartData(current.pastBookings, 'date', currentRange.start, currentRange.end);
+      const bookingsData = getChartData(current.bookings, 'date', currentRange.start, currentRange.end);
+
+      const maxReg = Math.max(1, ...Object.values(regData).map(v => v.count));
+      const maxRev = Math.max(1, ...Object.values(revenueData).map(v => v.sum));
+      const maxBook = Math.max(1, ...Object.values(bookingsData).map(v => v.sum));
+
+      const CompareArrow = ({ cur, prv }) => {
+        if (!compareMode || prv === undefined) return null;
+        const diff = cur - prv;
+        const pct = prv > 0 ? Math.round((diff / prv) * 100) : (cur > 0 ? 100 : 0);
+        const up = diff > 0;
+        const color = up ? '#2ecc71' : diff < 0 ? '#e74c3c' : '#8892b0';
+        return React.createElement('div', {style: {fontSize: 10, color, marginTop: 2}},
+          (up ? '+' : '') + pct + '%' + (diff !== 0 ? (up ? ' ↑' : ' ↓') : '')
+        );
+      };
+
+      const LineChart = ({ data, valueKey, maxVal, color, label, formatVal }) => {
+        const entries = Object.entries(data);
+        const w = 320;
+        const h = 140;
+        const padL = 40;
+        const padR = 10;
+        const padT = 20;
+        const padB = 30;
+        const chartW = w - padL - padR;
+        const chartH = h - padT - padB;
+        const n = entries.length;
+
+        const points = entries.map(([k, v], i) => {
+          const x = padL + (n > 1 ? (i / (n - 1)) * chartW : chartW / 2);
+          const val = v[valueKey];
+          const y = padT + chartH - (maxVal > 0 ? (val / maxVal) * chartH : 0);
+          return { x, y, val, label: k };
+        });
+
+        const linePath = points.map((p, i) => (i === 0 ? 'M' : 'L') + p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ');
+        const areaPath = linePath + ' L' + points[points.length - 1].x.toFixed(1) + ',' + (padT + chartH) + ' L' + points[0].x.toFixed(1) + ',' + (padT + chartH) + ' Z';
+
+        const gridLines = 4;
+        const gridVals = Array.from({length: gridLines + 1}, (_, i) => Math.round(maxVal * i / gridLines));
+
+        return (
+          <div style={{marginBottom: 24}}>
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 8, color: '#ccd6f6'}}>{label}</div>
+            <svg viewBox={'0 0 ' + w + ' ' + h} style={{width: '100%', height: 'auto'}}>
+              {gridVals.map((gv, i) => {
+                const gy = padT + chartH - (maxVal > 0 ? (gv / maxVal) * chartH : 0);
+                return React.createElement('g', {key: 'g' + i},
+                  React.createElement('line', {x1: padL, y1: gy, x2: w - padR, y2: gy, stroke: 'rgba(255,255,255,0.08)', strokeWidth: 1}),
+                  React.createElement('text', {x: padL - 4, y: gy + 3, fill: '#8892b0', fontSize: 8, textAnchor: 'end'}, formatVal ? formatVal(gv) : gv)
+                );
+              })}
+
+              <defs>
+                <linearGradient id={'grad-' + label} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+                </linearGradient>
+              </defs>
+
+              {n > 1 && React.createElement('path', {d: areaPath, fill: 'url(#grad-' + label + ')'})}
+              {n > 1 && React.createElement('path', {d: linePath, fill: 'none', stroke: color, strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round'})}
+
+              {points.map((p, i) => React.createElement('g', {key: 'p' + i},
+                React.createElement('circle', {cx: p.x, cy: p.y, r: 3.5, fill: color, stroke: '#1a1a2e', strokeWidth: 2}),
+                React.createElement('text', {x: p.x, y: p.y - 8, fill: '#ccd6f6', fontSize: 8, textAnchor: 'middle'}, formatVal ? formatVal(p.val) : p.val),
+                React.createElement('text', {x: p.x, y: padT + chartH + 14, fill: '#8892b0', fontSize: 7, textAnchor: 'middle'}, p.label)
+              ))}
+            </svg>
+          </div>
+        );
+      };
+
+      const periodLabels = { day: 'День', week: 'Неделя', month: 'Месяц', '3months': '3 мес.', year: 'Год', custom: 'Период' };
+
+      const handlePeriodClick = (key) => {
+        if (key === 'custom') {
+          setShowCustom(!showCustom);
+          if (!showCustom) {
+            if (!customFrom) setCustomFrom(toDateStr(new Date(now.getFullYear(), now.getMonth(), 1)));
+            if (!customTo) setCustomTo(toDateStr(now));
+          }
+          setPeriod('custom');
+        } else if (key === 'day') {
+          setPeriod('day');
+          if (!selectedDay) setSelectedDay(toDateStr(now));
+          setShowCustom(false);
+        } else {
+          setPeriod(key);
+          setShowCustom(false);
+        }
+      };
+
+      const formatRange = (r) => {
+        const s = r.start;
+        const e = r.end;
+        return s.getDate() + '.' + (s.getMonth()+1) + ' - ' + e.getDate() + '.' + (e.getMonth()+1);
+      };
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Статистика</h2>
+
+          <div style={{display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap'}}>
+            {Object.entries(periodLabels).map(([key, lbl]) => (
+              <button key={key} onClick={() => handlePeriodClick(key)} style={{
+                padding: '8px 12px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                background: period === key ? '#4A90E2' : 'rgba(255,255,255,0.08)',
+                color: period === key ? '#fff' : '#8892b0'
+              }}>{lbl}</button>
+            ))}
+          </div>
+
+          {period === 'day' && (
+            <div className="card" style={{marginBottom: 12, padding: 12}}>
+              <div style={{fontSize: 12, color: '#8892b0', marginBottom: 6}}>Выберите день</div>
+              <input type="date" value={selectedDay || ''} onChange={e => setSelectedDay(e.target.value)} style={{
+                width: '100%', padding: '10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)',
+                background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: 14
+              }} />
+            </div>
+          )}
+
+          {showCustom && period === 'custom' && (
+            <div className="card" style={{marginBottom: 12, padding: 12}}>
+              <div style={{fontSize: 12, color: '#8892b0', marginBottom: 6}}>Выберите период</div>
+              <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                <input type="date" value={customFrom} onChange={e => setCustomFrom(e.target.value)} style={{
+                  flex: 1, padding: '10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: 13
+                }} />
+                <span style={{color: '#8892b0'}}>—</span>
+                <input type="date" value={customTo} onChange={e => setCustomTo(e.target.value)} style={{
+                  flex: 1, padding: '10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(255,255,255,0.06)', color: '#fff', fontSize: 13
+                }} />
+              </div>
+            </div>
+          )}
+
+          <div style={{display: 'flex', gap: 8, marginBottom: 16, alignItems: 'center'}}>
+            <button onClick={() => setCompareMode(!compareMode)} style={{
+              padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+              background: compareMode ? '#9b59b6' : 'rgba(255,255,255,0.08)',
+              color: compareMode ? '#fff' : '#8892b0'
+            }}>
+              {compareMode ? 'Сравнение вкл.' : 'Сравнить'}
+            </button>
+            {compareMode && prevRange && (
+              <span style={{fontSize: 11, color: '#8892b0'}}>
+                Текущий: {formatRange(currentRange)} | Пред.: {formatRange(prevRange)}
+              </span>
+            )}
+          </div>
+
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12}}>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Новые клиенты</div>
+                <div style={{fontSize: 22, fontWeight: 700, color: '#4A90E2'}}>{current.clients.length}</div>
+                <CompareArrow cur={current.clients.length} prv={prev && prev.clients.length} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Бронирований</div>
+                <div style={{fontSize: 22, fontWeight: 700}}>{current.bookings.length}</div>
+                <CompareArrow cur={current.bookings.length} prv={prev && prev.bookings.length} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Отмены</div>
+                <div style={{fontSize: 22, fontWeight: 700, color: '#e74c3c'}}>{current.cancellations.length}</div>
+                <CompareArrow cur={current.cancellations.length} prv={prev && prev.cancellations.length} />
+              </div>
+            </div>
+          </div>
+
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ccd6f6'}}>Брони</div>
+            <div style={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12}}>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Сумма броней</div>
+                <div style={{fontSize: 20, fontWeight: 700, color: '#4A90E2'}}>{current.bookingsTotal.toLocaleString()} р.</div>
+                <CompareArrow cur={current.bookingsTotal} prv={prev && prev.bookingsTotal} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Кол-во броней</div>
+                <div style={{fontSize: 20, fontWeight: 700}}>{current.bookings.length}</div>
+                <CompareArrow cur={current.bookings.length} prv={prev && prev.bookings.length} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Предстоит</div>
+                <div style={{fontSize: 20, fontWeight: 700, color: '#f39c12'}}>{(current.bookingsTotal - current.revenue).toLocaleString()} р.</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ccd6f6'}}>Выручка</div>
+            <div style={{fontSize: 11, color: '#8892b0', marginBottom: 10}}>Завершенные бронирования (время прошло)</div>
+            <div style={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12}}>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Выручка</div>
+                <div style={{fontSize: 20, fontWeight: 700}}>{current.revenue.toLocaleString()} р.</div>
+                <CompareArrow cur={current.revenue} prv={prev && prev.revenue} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Оплачено</div>
+                <div style={{fontSize: 20, fontWeight: 700, color: '#2ecc71'}}>{current.paidRevenue.toLocaleString()} р.</div>
+                <CompareArrow cur={current.paidRevenue} prv={prev && prev.paidRevenue} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Не оплачено</div>
+                <div style={{fontSize: 20, fontWeight: 700, color: '#e74c3c'}}>{current.unpaidRevenue.toLocaleString()} р.</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ccd6f6'}}>Способы оплаты</div>
+            <div style={{display: 'flex', justifyContent: 'space-between', gap: 12}}>
+              <div style={{textAlign: 'center', flex: 1, padding: '12px', background: 'rgba(39,174,96,0.1)', borderRadius: 10}}>
+                <div style={{fontSize: 11, color: '#8892b0'}}>Наличные</div>
+                <div style={{fontSize: 18, fontWeight: 700, color: '#27ae60'}}>{current.cashRevenue.toLocaleString()} р.</div>
+                <div style={{fontSize: 11, color: '#8892b0', marginTop: 2}}>
+                  {current.pastBookings.filter(b => b.paid && b.paymentMethod === 'cash').length} оплат
+                </div>
+                <CompareArrow cur={current.cashRevenue} prv={prev && prev.cashRevenue} />
+              </div>
+              <div style={{textAlign: 'center', flex: 1, padding: '12px', background: 'rgba(52,152,219,0.1)', borderRadius: 10}}>
+                <div style={{fontSize: 11, color: '#8892b0'}}>Карта</div>
+                <div style={{fontSize: 18, fontWeight: 700, color: '#3498db'}}>{current.cardRevenue.toLocaleString()} р.</div>
+                <div style={{fontSize: 11, color: '#8892b0', marginTop: 2}}>
+                  {current.pastBookings.filter(b => b.paid && b.paymentMethod === 'card').length} оплат
+                </div>
+                <CompareArrow cur={current.cardRevenue} prv={prev && prev.cardRevenue} />
+              </div>
+            </div>
+          </div>
+
+          {period !== 'day' && (
+            <div className="card" style={{padding: 16, marginBottom: 16}}>
+              <LineChart data={regData} valueKey="count" maxVal={maxReg} color="#4A90E2" label="Регистрации клиентов" />
+              <LineChart data={bookingsData} valueKey="sum" maxVal={maxBook} color="#f39c12" label="Сумма броней (руб.)" formatVal={v => v >= 1000 ? Math.round(v/1000) + 'к' : v} />
+              <LineChart data={revenueData} valueKey="sum" maxVal={maxRev} color="#2ecc71" label="Выручка (руб.)" formatVal={v => v >= 1000 ? Math.round(v/1000) + 'к' : v} />
+            </div>
+          )}
+
+          <div className="card" style={{padding: 16}}>
+            <div style={{fontSize: 14, fontWeight: 600, marginBottom: 12, color: '#ccd6f6'}}>Общие показатели</div>
+            <div style={{fontSize: 12, color: '#8892b0'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                <span>Всего клиентов (за все время)</span>
+                <span style={{color: '#fff', fontWeight: 600}}>{stats.clients.length}</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                <span>Всего бронирований (за все время)</span>
+                <span style={{color: '#fff', fontWeight: 600}}>{stats.bookings.length}</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                <span>Почасовых бронирований</span>
+                <span style={{color: '#fff', fontWeight: 600}}>{current.bookings.filter(b => b.bookingType === 'hourly').length}</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.06)'}}>
+                <span>Посуточных бронирований</span>
+                <span style={{color: '#fff', fontWeight: 600}}>{current.bookings.filter(b => b.bookingType === 'daily').length}</span>
+              </div>
+              <div style={{display: 'flex', justifyContent: 'space-between', padding: '8px 0'}}>
+                <span>Средний чек</span>
+                <span style={{color: '#fff', fontWeight: 600}}>{current.bookings.length > 0 ? Math.round(current.bookingsTotal / current.bookings.length) : 0} р.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function PaymentsScreen() {
+      const [bookings, setBookings] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [filter, setFilter] = useState('unpaid');
+      const [payingId, setPayingId] = useState(null);
+      const [editingId, setEditingId] = useState(null);
+      const [editAmount, setEditAmount] = useState('');
+      const [editExtraTime, setEditExtraTime] = useState('');
+
+      const fetchBookings = async () => {
+        try {
+          const res = await fetch(API_BASE + '/api/bookings');
+          const data = await res.json();
+          setBookings(Array.isArray(data) ? data : []);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error fetching bookings:', err);
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        fetchBookings();
+        const interval = setInterval(fetchBookings, 15000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const markPaid = async (id, method) => {
+        try {
+          const booking = bookings.find(b => b.id === id);
+          const totalPrice = getTotalPrice(booking);
+          const amount = editingId === id && editAmount !== '' ? parseInt(editAmount) : totalPrice;
+          const extraTimeVal = editingId === id && editExtraTime !== '' ? parseInt(editExtraTime) : (booking.extraTime || 0);
+          const isDebtor = amount < totalPrice;
+          await fetch(API_BASE + '/api/bookings/' + id + '/paid', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: true, paymentMethod: method, paidAmount: amount, isDebtor: isDebtor, extraTime: extraTimeVal })
+          });
+          setBookings(prev => prev.map(b => b.id === id ? { ...b, paid: true, paymentMethod: method, paidAmount: amount, isDebtor: isDebtor, extraTime: extraTimeVal } : b));
+          setPayingId(null);
+          setEditingId(null);
+          setEditAmount('');
+          setEditExtraTime('');
+        } catch (err) {
+          console.error('Error marking paid:', err);
+        }
+      };
+
+      const markUnpaid = async (id) => {
+        try {
+          await fetch(API_BASE + '/api/bookings/' + id + '/paid', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: false, isDebtor: false })
+          });
+          setBookings(prev => prev.map(b => b.id === id ? { ...b, paid: false, paymentMethod: null, paidAmount: null, isDebtor: false } : b));
+        } catch (err) {
+          console.error('Error marking unpaid:', err);
+        }
+      };
+
+      const toggleDebtor = async (id, currentDebtor) => {
+        try {
+          const newDebtor = !currentDebtor;
+          await fetch(API_BASE + '/api/bookings/' + id + '/paid', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: bookings.find(b => b.id === id)?.paid || false, isDebtor: newDebtor })
+          });
+          setBookings(prev => prev.map(b => b.id === id ? { ...b, isDebtor: newDebtor } : b));
+        } catch (err) {
+          console.error('Error toggling debtor:', err);
+        }
+      };
+
+      const saveExtraTime = async (id) => {
+        try {
+          const booking = bookings.find(b => b.id === id);
+          const extraTimeVal = editExtraTime !== '' ? parseInt(editExtraTime) : 0;
+          await fetch(API_BASE + '/api/bookings/' + id + '/paid', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paid: booking.paid, extraTime: extraTimeVal })
+          });
+          setBookings(prev => prev.map(b => b.id === id ? { ...b, extraTime: extraTimeVal } : b));
+        } catch (err) {
+          console.error('Error saving extra time:', err);
+        }
+      };
+
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+
+      const getTotalPrice = (b) => {
+        const extraBlocks = b.extraTime || 0;
+        return b.price + (extraBlocks * 200);
+      };
+
+      const isBookingPast = (b) => {
+        const now = new Date();
+        const bookingDate = new Date(b.date + 'T00:00:00');
+        if (bookingDate.toDateString() === now.toDateString()) {
+          if (b.bookingType === 'daily') return false;
+          const endSlot = (b.startHour || 0) + (b.duration || 0);
+          const endHour = Math.floor(endSlot / 2);
+          const endMin = (endSlot % 2) * 30;
+          return now.getHours() > endHour || (now.getHours() === endHour && now.getMinutes() >= endMin);
+        }
+        return bookingDate < now;
+      };
+
+      if (loading) {
+        return <div className="container" style={{paddingBottom: 120, textAlign: 'center', paddingTop: 40, color: '#8892b0'}}>Загрузка...</div>;
+      }
+
+      const filtered = bookings.filter(b => {
+        if (filter === 'unpaid') return !b.paid;
+        if (filter === 'paid') return b.paid;
+        if (filter === 'overdue') return !b.paid && isBookingPast(b);
+        if (filter === 'debtors') return b.isDebtor;
+        return true;
+      });
+
+      const filterLabels = { all: 'Все', unpaid: 'Не оплачены', paid: 'Оплачены', overdue: 'Просрочены', debtors: 'Должники' };
+
+      const unpaidCount = bookings.filter(b => !b.paid).length;
+      const overdueCount = bookings.filter(b => !b.paid && isBookingPast(b)).length;
+      const debtorCount = bookings.filter(b => b.isDebtor).length;
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Оплата бронирований</h2>
+
+          <div className="card" style={{marginBottom: 16, padding: 16}}>
+            <div style={{display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap'}}>
+              <div style={{textAlign: 'center', flex: 1, minWidth: 60}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Всего</div>
+                <div style={{fontSize: 22, fontWeight: 700}}>{bookings.length}</div>
+              </div>
+              <div style={{textAlign: 'center', flex: 1, minWidth: 60}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Не оплач.</div>
+                <div style={{fontSize: 22, fontWeight: 700, color: '#e67e22'}}>{unpaidCount}</div>
+              </div>
+              <div style={{textAlign: 'center', flex: 1, minWidth: 60}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Просроч.</div>
+                <div style={{fontSize: 22, fontWeight: 700, color: '#e74c3c'}}>{overdueCount}</div>
+              </div>
+              <div style={{textAlign: 'center', flex: 1, minWidth: 60}}>
+                <div style={{fontSize: 12, color: '#8892b0'}}>Должники</div>
+                <div style={{fontSize: 22, fontWeight: 700, color: '#9b59b6'}}>{debtorCount}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap'}}>
+            {Object.entries(filterLabels).map(([key, lbl]) => (
+              <button key={key} onClick={() => setFilter(key)} style={{
+                padding: '8px 14px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                background: filter === key ? (key === 'debtors' ? '#9b59b6' : '#4A90E2') : 'rgba(255,255,255,0.08)',
+                color: filter === key ? '#fff' : '#8892b0'
+              }}>{lbl}{key === 'overdue' && overdueCount > 0 ? ' (' + overdueCount + ')' : ''}{key === 'debtors' && debtorCount > 0 ? ' (' + debtorCount + ')' : ''}</button>
+            ))}
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="empty-state" style={{color: '#8892b0', textAlign: 'center', padding: 40}}>Нет бронирований</div>
+          ) : (
+            filtered.map(b => {
+              const isPast = isBookingPast(b);
+              const isOverdue = !b.paid && isPast;
+              const showMethodPicker = payingId === b.id;
+              const isEditing = editingId === b.id;
+              const totalPrice = getTotalPrice(b);
+              const debt = b.paid && b.paidAmount != null && b.paidAmount < totalPrice ? totalPrice - b.paidAmount : 0;
+              return (
+                <div key={b.id} className="card" style={{
+                  marginBottom: 10,
+                  padding: 14,
+                  border: b.isDebtor ? '2px solid #9b59b6' : isOverdue ? '2px solid #e74c3c' : b.paid ? '1px solid rgba(46,204,113,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                  background: b.isDebtor ? 'rgba(155,89,182,0.08)' : isOverdue ? 'rgba(231,76,60,0.08)' : b.paid ? 'rgba(46,204,113,0.06)' : 'rgba(255,255,255,0.08)'
+                }}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                    <div style={{flex: 1}}>
+                      <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                        <span style={{fontWeight: 600, fontSize: 15, color: b.isDebtor ? '#9b59b6' : isOverdue ? '#e74c3c' : '#fff'}}>{b.userName}</span>
+                        {b.isDebtor && <span style={{fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(155,89,182,0.2)', color: '#9b59b6', fontWeight: 600}}>ДОЛГ</span>}
+                      </div>
+                      <div style={{fontSize: 12, color: '#8892b0', marginTop: 2}}>{b.userPhone || ''}</div>
+                      <div style={{fontSize: 13, color: '#ccd6f6', marginTop: 6}}>
+                        Кабинет {b.roomNumber} | {b.date}
+                      </div>
+                      <div style={{fontSize: 12, color: '#8892b0', marginTop: 2}}>
+                        {b.bookingType === 'daily' ? '10:00 - 22:00 (на день)' : slotToTime(b.startHour) + ' - ' + slotToTime((b.startHour || 0) + (b.duration || 0))}
+                      </div>
+                      <div style={{fontSize: 14, fontWeight: 700, marginTop: 6, color: isOverdue ? '#e74c3c' : '#fff'}}>
+                        {b.price} р.
+                        {(b.extraTime || 0) > 0 && (
+                          <span style={{fontSize: 12, color: '#e67e22', marginLeft: 6}}>+ {(b.extraTime || 0) * 30} мин ({(b.extraTime || 0) * 200} р.)</span>
+                        )}
+                      </div>
+                      {totalPrice !== b.price && (
+                        <div style={{fontSize: 13, fontWeight: 700, color: '#e67e22', marginTop: 2}}>Итого: {totalPrice} р.</div>
+                      )}
+                      {b.paid && b.paidAmount != null && (
+                        <div style={{fontSize: 12, color: b.paidAmount < totalPrice ? '#e74c3c' : '#2ecc71', marginTop: 4}}>
+                          Оплачено: {b.paidAmount} р.{debt > 0 && <span style={{color: '#e74c3c'}}> (долг: {debt} р.)</span>}
+                        </div>
+                      )}
+                      {b.paid && b.paymentMethod && (
+                        <div style={{fontSize: 11, color: '#8892b0', marginTop: 2}}>
+                          {b.paymentMethod === 'cash' ? 'Наличные' : 'Карта'}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end', minWidth: 110}}>
+                      {b.paid ? (
+                        <button onClick={() => markUnpaid(b.id)} style={{
+                          padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                          background: '#2ecc71', color: '#fff', whiteSpace: 'nowrap', minWidth: 100
+                        }}>
+                          Оплачено
+                        </button>
+                      ) : showMethodPicker ? (
+                        <div style={{display: 'flex', flexDirection: 'column', gap: 6}}>
+                          <button onClick={() => markPaid(b.id, 'cash')} style={{
+                            padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                            background: '#27ae60', color: '#fff', whiteSpace: 'nowrap', minWidth: 100
+                          }}>
+                            Наличные
+                          </button>
+                          <button onClick={() => markPaid(b.id, 'card')} style={{
+                            padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                            background: '#3498db', color: '#fff', whiteSpace: 'nowrap', minWidth: 100
+                          }}>
+                            Карта
+                          </button>
+                          <button onClick={() => { setPayingId(null); setEditingId(null); setEditAmount(''); setEditExtraTime(''); }} style={{
+                            padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500,
+                            background: 'rgba(255,255,255,0.1)', color: '#8892b0'
+                          }}>
+                            Отмена
+                          </button>
+                        </div>
+                      ) : (
+                        <button onClick={() => { setPayingId(b.id); setEditingId(b.id); setEditAmount(String(getTotalPrice(b))); setEditExtraTime(String(b.extraTime || 0)); }} style={{
+                          padding: '10px 16px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                          background: isOverdue ? '#e74c3c' : '#e67e22',
+                          color: '#fff', whiteSpace: 'nowrap', minWidth: 100
+                        }}>
+                          Оплатить
+                        </button>
+                      )}
+                      <label onClick={() => toggleDebtor(b.id, b.isDebtor)} style={{
+                        display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 11, color: b.isDebtor ? '#9b59b6' : '#8892b0', userSelect: 'none'
+                      }}>
+                        <span style={{
+                          width: 16, height: 16, borderRadius: 4, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                          border: b.isDebtor ? '2px solid #9b59b6' : '2px solid #555', background: b.isDebtor ? '#9b59b6' : 'transparent',
+                          color: '#fff', fontSize: 10, fontWeight: 700
+                        }}>{b.isDebtor ? '\u2713' : ''}</span>
+                        Должник
+                      </label>
+                    </div>
+                  </div>
+                  {isEditing && showMethodPicker && (
+                    <div style={{marginTop: 10, padding: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 8}}>
+                      <div style={{display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap'}}>
+                        <div style={{flex: 1, minWidth: 120}}>
+                          <div style={{fontSize: 11, color: '#8892b0', marginBottom: 4}}>Сумма оплаты (р.)</div>
+                          <input type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} style={{
+                            width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box'
+                          }} />
+                        </div>
+                        <div style={{flex: 1, minWidth: 120}}>
+                          <div style={{fontSize: 11, color: '#8892b0', marginBottom: 4}}>Доп. время (блоки по 30 мин)</div>
+                          <input type="number" value={editExtraTime} onChange={(e) => setEditExtraTime(e.target.value)} min="0" style={{
+                            width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.2)',
+                            background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box'
+                          }} />
+                          {editExtraTime && parseInt(editExtraTime) > 0 && (
+                            <div style={{fontSize: 10, color: '#e67e22', marginTop: 2}}>+{parseInt(editExtraTime) * 30} мин = +{parseInt(editExtraTime) * 200} р.</div>
+                          )}
+                        </div>
+                      </div>
+                      {editAmount !== '' && parseInt(editAmount) < getTotalPrice(b) + (editExtraTime ? (parseInt(editExtraTime) - (b.extraTime || 0)) * 200 : 0) && (
+                        <div style={{fontSize: 11, color: '#e74c3c', marginBottom: 4}}>Клиент будет отмечен как должник (недоплата)</div>
+                      )}
+                    </div>
+                  )}
+                  {!isEditing && !b.paid && (
+                    <div style={{marginTop: 8, display: 'flex', gap: 8, alignItems: 'center'}}>
+                      <button onClick={() => { setEditingId(b.id); setEditExtraTime(String(b.extraTime || 0)); }} style={{
+                        padding: '4px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 500,
+                        background: 'rgba(230,126,34,0.15)', color: '#e67e22'
+                      }}>
+                        Доп. время
+                      </button>
+                    </div>
+                  )}
+                  {isEditing && !showMethodPicker && (
+                    <div style={{marginTop: 8, padding: 10, background: 'rgba(255,255,255,0.05)', borderRadius: 8}}>
+                      <div style={{fontSize: 11, color: '#8892b0', marginBottom: 4}}>Доп. время (блоки по 30 мин)</div>
+                      <div style={{display: 'flex', gap: 8, alignItems: 'center'}}>
+                        <input type="number" value={editExtraTime} onChange={(e) => setEditExtraTime(e.target.value)} min="0" style={{
+                          width: 80, padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.2)',
+                          background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, outline: 'none'
+                        }} />
+                        {editExtraTime && parseInt(editExtraTime) > 0 && (
+                          <span style={{fontSize: 11, color: '#e67e22'}}>+{parseInt(editExtraTime) * 30} мин = +{parseInt(editExtraTime) * 200} р.</span>
+                        )}
+                        <button onClick={() => { saveExtraTime(b.id); setEditingId(null); setEditExtraTime(''); }} style={{
+                          padding: '6px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600,
+                          background: '#4A90E2', color: '#fff'
+                        }}>
+                          Сохранить
+                        </button>
+                        <button onClick={() => { setEditingId(null); setEditExtraTime(''); }} style={{
+                          padding: '6px 10px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 11,
+                          background: 'rgba(255,255,255,0.1)', color: '#8892b0'
+                        }}>
+                          Отмена
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {isOverdue && (
+                    <div style={{fontSize: 11, color: '#e74c3c', marginTop: 8, padding: '4px 8px', background: 'rgba(231,76,60,0.1)', borderRadius: 6}}>
+                      Просрочено - время бронирования прошло
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      );
+    }
+
+    function ActivityLogScreen() {
+      const [log, setLog] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [filter, setFilter] = useState('all');
+
+      useEffect(() => {
+        fetchLog();
+        const interval = setInterval(fetchLog, 15000);
+        return () => clearInterval(interval);
+      }, []);
+
+      const fetchLog = async () => {
+        try {
+          const res = await fetch(API_BASE + '/api/activity-log');
+          const data = await res.json();
+          setLog(Array.isArray(data) ? data : []);
+          setLoading(false);
+        } catch (err) {
+          console.error('Error fetching log:', err);
+          setLoading(false);
+        }
+      };
+
+      const slotToTime = (slot) => {
+        if (slot === null || slot === undefined) return '';
+        const h = Math.floor(slot / 2);
+        const m = (slot % 2) * 30;
+        return h + ':' + (m === 0 ? '00' : '30');
+      };
+
+      const formatTimestamp = (ts) => {
+        if (!ts) return '';
+        const d = new Date(ts);
+        const day = d.getDate().toString().padStart(2, '0');
+        const mon = (d.getMonth() + 1).toString().padStart(2, '0');
+        const yr = d.getFullYear();
+        const hr = d.getHours().toString().padStart(2, '0');
+        const min = d.getMinutes().toString().padStart(2, '0');
+        return day + '.' + mon + '.' + yr + ' ' + hr + ':' + min;
+      };
+
+      const formatDate = (dateStr) => {
+        if (!dateStr) return '';
+        const parts = dateStr.split('-');
+        return parts[2] + '.' + parts[1] + '.' + parts[0];
+      };
+
+      const filtered = filter === 'all' ? log : log.filter(e => e.type === filter);
+
+      if (loading) return <div className="loading">Загрузка...</div>;
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Журнал событий</h2>
+
+          <div className="mode-tabs" style={{marginBottom: 16}}>
+            <button className={'mode-tab' + (filter === 'all' ? ' active' : '')} onClick={() => setFilter('all')}>Все</button>
+            <button className={'mode-tab' + (filter === 'booking' ? ' active' : '')} onClick={() => setFilter('booking')}>Брони</button>
+            <button className={'mode-tab' + (filter === 'cancellation' ? ' active' : '')} onClick={() => setFilter('cancellation')}>Отмены</button>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="empty-state">Нет событий</div>
+          ) : (
+            filtered.map((entry, i) => (
+              <div key={i} className="card" style={{
+                marginBottom: 10,
+                borderLeft: entry.type === 'booking' ? '4px solid #2ecc71' : '4px solid #e74c3c',
+                padding: '12px 14px'
+              }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6}}>
+                  <div style={{
+                    fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
+                    background: entry.type === 'booking' ? 'rgba(46,204,113,0.2)' : 'rgba(231,76,60,0.2)',
+                    color: entry.type === 'booking' ? '#2ecc71' : '#e74c3c'
+                  }}>
+                    {entry.type === 'booking' ? 'Бронирование' : 'Отмена'}
+                  </div>
+                  <div style={{fontSize: 12, color: '#8892b0'}}>{formatTimestamp(entry.timestamp)}</div>
+                </div>
+                <div style={{fontSize: 15, fontWeight: 600, marginBottom: 4}}>{entry.userName}</div>
+                <div style={{fontSize: 13, color: '#8892b0', marginBottom: 2}}>{entry.userPhone || ''}</div>
+                <div style={{fontSize: 13, color: '#ccd6f6'}}>
+                  Кабинет {entry.roomNumber} — {formatDate(entry.date)}
+                  {entry.bookingType === 'daily' ? (
+                    <span> — весь день (10:00-22:00)</span>
+                  ) : entry.startHour !== null && entry.startHour !== undefined ? (
+                    <span> — {slotToTime(entry.startHour)}–{slotToTime(entry.startHour + (entry.duration || 2))}</span>
+                  ) : null}
+                </div>
+                <div style={{fontSize: 14, fontWeight: 600, marginTop: 4, color: entry.type === 'booking' ? '#2ecc71' : '#e74c3c'}}>
+                  {entry.price} ₽
+                  {entry.type === 'booking' && entry.paid ? (
+                    <span style={{fontSize: 12, fontWeight: 400, color: '#2ecc71', marginLeft: 8}}>
+                      Оплачено {entry.paymentMethod === 'cash' ? '(нал.)' : entry.paymentMethod === 'card' ? '(карта)' : ''}
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      );
+    }
+
+    function ClientsScreen() {
+      const [clients, setClients] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [mergeSource, setMergeSource] = useState(null);
+      const [mergeTarget, setMergeTarget] = useState(null);
+      const [search, setSearch] = useState('');
+      const [merging, setMerging] = useState(false);
+      const [message, setMessage] = useState('');
+
+      const loadClients = () => {
+        setLoading(true);
+        fetch(API_BASE + '/api/admin/all-clients')
+          .then(r => r.json())
+          .then(data => { setClients(data); setLoading(false); })
+          .catch(() => setLoading(false));
+      };
+
+      useEffect(() => { loadClients(); }, []);
+
+      const filtered = clients.filter(c => {
+        if (!search) return true;
+        const s = search.toLowerCase();
+        return (c.userName || '').toLowerCase().includes(s) || (c.userPhone || '').includes(s);
+      });
+
+      const doMerge = async () => {
+        if (!mergeSource || !mergeTarget || mergeSource.userId === mergeTarget.userId) return;
+        if (!confirm('Объединить "' + mergeSource.userName + '" → "' + mergeTarget.userName + '"?\nВсе брони будут перенесены.')) return;
+        setMerging(true);
+        try {
+          const res = await fetch(API_BASE + '/api/admin/merge-clients', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              sourceUserId: mergeSource.userId,
+              targetUserId: mergeTarget.userId,
+              targetUserName: mergeTarget.userName,
+              targetUserPhone: mergeTarget.userPhone
+            })
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setMessage('Объединено! Обновлено записей: ' + data.updatedCount);
+            setMergeSource(null);
+            setMergeTarget(null);
+            loadClients();
+          } else {
+            setMessage('Ошибка: ' + (data.error || 'Неизвестная ошибка'));
+          }
+        } catch (e) {
+          setMessage('Ошибка подключения');
+        }
+        setMerging(false);
+      };
+
+      if (loading) return React.createElement('div', {className: 'container', style: {paddingBottom: 120, textAlign: 'center', paddingTop: 40}}, 'Загрузка...');
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <h2 className="section-title">Клиенты ({clients.length})</h2>
+
+          {message && <div style={{padding: '10px 14px', borderRadius: 10, background: 'rgba(0,184,148,0.2)', color: '#55efc4', marginBottom: 12, fontSize: 13}} onClick={() => setMessage('')}>{message}</div>}
+
+          {(mergeSource || mergeTarget) && (
+            <div className="card" style={{marginBottom: 16, border: '1px solid rgba(74,144,226,0.4)'}}>
+              <div style={{fontSize: 14, fontWeight: 600, marginBottom: 10}}>Объединение клиентов</div>
+              <div style={{display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap'}}>
+                <div style={{flex: 1, minWidth: 120}}>
+                  <div style={{fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 4}}>Удалить (источник):</div>
+                  {mergeSource ? (
+                    <div style={{padding: '8px 12px', borderRadius: 8, background: 'rgba(255,118,117,0.15)', border: '1px solid rgba(255,118,117,0.3)', fontSize: 13}}>
+                      {mergeSource.userName} <span style={{color: 'rgba(255,255,255,0.5)'}}>({mergeSource.userPhone || '—'})</span>
+                      <span style={{color: '#ff7675', cursor: 'pointer', marginLeft: 8}} onClick={() => setMergeSource(null)}>✕</span>
+                    </div>
+                  ) : <div style={{padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', fontSize: 12, color: 'rgba(255,255,255,0.4)'}}>Выберите клиента</div>}
+                </div>
+                <div style={{fontSize: 18, color: 'rgba(255,255,255,0.3)'}}>→</div>
+                <div style={{flex: 1, minWidth: 120}}>
+                  <div style={{fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 4}}>Оставить (цель):</div>
+                  {mergeTarget ? (
+                    <div style={{padding: '8px 12px', borderRadius: 8, background: 'rgba(0,184,148,0.15)', border: '1px solid rgba(0,184,148,0.3)', fontSize: 13}}>
+                      {mergeTarget.userName} <span style={{color: 'rgba(255,255,255,0.5)'}}>({mergeTarget.userPhone || '—'})</span>
+                      <span style={{color: '#00b894', cursor: 'pointer', marginLeft: 8}} onClick={() => setMergeTarget(null)}>✕</span>
+                    </div>
+                  ) : <div style={{padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', fontSize: 12, color: 'rgba(255,255,255,0.4)'}}>Выберите клиента</div>}
+                </div>
+              </div>
+              {mergeSource && mergeTarget && mergeSource.userId !== mergeTarget.userId && (
+                <button className="btn" style={{marginTop: 12, background: '#4A90E2', color: '#fff', width: '100%'}} onClick={doMerge} disabled={merging}>
+                  {merging ? 'Объединяю...' : 'Объединить'}
+                </button>
+              )}
+              {mergeSource && mergeTarget && mergeSource.userId === mergeTarget.userId && (
+                <div style={{marginTop: 8, fontSize: 12, color: '#ff7675'}}>Нельзя объединить клиента с самим собой</div>
+              )}
+              <button className="btn" style={{marginTop: 8, background: 'rgba(255,255,255,0.1)', color: '#fff', width: '100%', fontSize: 12}} onClick={() => { setMergeSource(null); setMergeTarget(null); }}>
+                Отмена
+              </button>
+            </div>
+          )}
+
+          <input className="input" placeholder="Поиск по имени или телефону..." value={search} onChange={e => setSearch(e.target.value)} style={{marginBottom: 12}} />
+
+          <div style={{fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8}}>
+            Нажмите на клиента, чтобы выбрать для объединения. Сначала — источник (будет удалён), потом — цель (останется).
+          </div>
+
+          {filtered.map(c => {
+            const isSource = mergeSource && mergeSource.userId === c.userId;
+            const isTarget = mergeTarget && mergeTarget.userId === c.userId;
+            return (
+              <div key={c.userId} className="card" style={{
+                marginBottom: 8, cursor: 'pointer', padding: '12px 14px',
+                border: isSource ? '1px solid rgba(255,118,117,0.5)' : isTarget ? '1px solid rgba(0,184,148,0.5)' : '1px solid transparent',
+                background: isSource ? 'rgba(255,118,117,0.1)' : isTarget ? 'rgba(0,184,148,0.1)' : undefined
+              }} onClick={() => {
+                if (isSource) { setMergeSource(null); return; }
+                if (isTarget) { setMergeTarget(null); return; }
+                if (!mergeSource) { setMergeSource(c); }
+                else if (!mergeTarget) { setMergeTarget(c); }
+                else { setMergeSource(c); setMergeTarget(null); }
+              }}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                  <div>
+                    <div style={{fontWeight: 600, fontSize: 14}}>{c.userName || '(без имени)'}</div>
+                    <div style={{fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2}}>{c.userPhone || 'Нет телефона'}</div>
+                  </div>
+                  <div style={{textAlign: 'right'}}>
+                    <div style={{fontSize: 12, color: 'rgba(255,255,255,0.5)'}}>{c.bookingCount} брон.</div>
+                    {isSource && <div style={{fontSize: 11, color: '#ff7675', fontWeight: 600}}>УДАЛИТЬ</div>}
+                    {isTarget && <div style={{fontSize: 11, color: '#00b894', fontWeight: 600}}>ОСТАВИТЬ</div>}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function ProfileScreen() {
+      const { user, logout } = useAuth();
+
+      return (
+        <div className="container" style={{paddingBottom: 120}}>
+          <div className="profile-header">
+            <div className="profile-avatar">A</div>
+            <div className="profile-name">{user.name}</div>
+            <div className="profile-phone">Администратор</div>
+          </div>
+
+          <button className="btn logout-btn" onClick={logout}>
+            Выйти
+          </button>
+        </div>
+      );
+    }
+
+    function useNotifications() {
+      const [notifications, setNotifications] = useState([]);
+      const [knownBookingIds, setKnownBookingIds] = useState(null);
+      const [newCount, setNewCount] = useState(0);
+      const [permissionGranted, setPermissionGranted] = useState(false);
+      const blinkRef = useRef(null);
+      const originalTitle = useRef('Altbody - Панель администратора');
+
+      useEffect(() => {
+        if ('Notification' in window) {
+          if (Notification.permission === 'granted') setPermissionGranted(true);
+          else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(p => { if (p === 'granted') setPermissionGranted(true); });
+          }
+        }
+      }, []);
+
+      const slotToTime = (slot) => { const h = Math.floor(slot / 2); const m = (slot % 2) * 30; return h + ':' + (m === 0 ? '00' : '30'); };
+
+      const startBlink = () => {
+        if (blinkRef.current) return;
+        let on = true;
+        blinkRef.current = setInterval(() => {
+          document.title = on ? 'Новая бронь!' : originalTitle.current;
+          on = !on;
+        }, 1000);
+      };
+
+      const stopBlink = () => {
+        if (blinkRef.current) {
+          clearInterval(blinkRef.current);
+          blinkRef.current = null;
+          document.title = originalTitle.current;
+        }
+      };
+
+      useEffect(() => {
+        const onFocus = () => { stopBlink(); };
+        window.addEventListener('focus', onFocus);
+        return () => { window.removeEventListener('focus', onFocus); stopBlink(); };
+      }, []);
+
+      useEffect(() => {
+        const poll = async () => {
+          try {
+            const res = await fetch(API_BASE + '/api/bookings');
+            const data = await res.json();
+            if (!Array.isArray(data)) return;
+
+            const currentIds = new Set(data.map(b => b.id));
+
+            if (knownBookingIds === null) {
+              setKnownBookingIds(currentIds);
+              return;
+            }
+
+            const newBookings = data.filter(b => !knownBookingIds.has(b.id));
+            if (newBookings.length > 0) {
+              const now = new Date();
+              const timeStr = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+
+              const newNotifs = newBookings.map(b => ({
+                id: b.id,
+                time: timeStr,
+                text: b.userName + ' | Каб. ' + b.roomNumber + ' | ' + b.date + ' | ' +
+                  (b.bookingType === 'daily' ? '10:00-22:00' : slotToTime(b.startHour) + '-' + slotToTime((b.startHour||0) + (b.duration||0))) +
+                  ' | ' + b.price + ' р.',
+                seen: false
+              }));
+
+              setNotifications(prev => [...newNotifs, ...prev].slice(0, 50));
+              setNewCount(prev => prev + newBookings.length);
+
+              newBookings.forEach(b => {
+                if (permissionGranted) {
+                  try {
+                    new Notification('Новая бронь!', {
+                      body: b.userName + ' - Каб. ' + b.roomNumber + '\n' + b.date + ' ' +
+                        (b.bookingType === 'daily' ? '10:00-22:00' : slotToTime(b.startHour) + '-' + slotToTime((b.startHour||0) + (b.duration||0))) +
+                        '\n' + b.price + ' р.',
+                      icon: '/favicon.ico',
+                      tag: 'booking-' + b.id
+                    });
+                  } catch(e) {}
+                }
+              });
+
+              if (!document.hasFocus()) {
+                startBlink();
+              }
+
+              setKnownBookingIds(currentIds);
+            } else {
+              setKnownBookingIds(currentIds);
+            }
+          } catch(e) {
+            console.error('Polling error:', e);
+          }
+        };
+
+        poll();
+        const interval = setInterval(poll, 10000);
+        return () => clearInterval(interval);
+      }, [knownBookingIds, permissionGranted]);
+
+      const clearNotifications = () => { setNewCount(0); };
+      const dismissAll = () => { setNotifications([]); setNewCount(0); };
+
+      return { notifications, newCount, clearNotifications, dismissAll, permissionGranted, setPermissionGranted };
+    }
+
+    function NotificationLog({ notifications, newCount, onClear, onDismissAll, permissionGranted, onRequestPermission }) {
+      const [expanded, setExpanded] = useState(false);
+
+      return (
+        <div style={{padding: '0 20px', marginBottom: 10}}>
+          <div style={{display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8}}>
+            <button onClick={() => { setExpanded(!expanded); if (!expanded) onClear(); }} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '10px 14px', borderRadius: 12, border: 'none', cursor: 'pointer',
+              background: newCount > 0 ? 'rgba(74,144,226,0.15)' : 'rgba(255,255,255,0.06)',
+              color: newCount > 0 ? '#4A90E2' : '#8892b0', fontSize: 13, fontWeight: 600
+            }}>
+              <span>{newCount > 0 ? 'Новые бронирования: ' + newCount : 'Уведомления'}</span>
+              <span style={{fontSize: 11}}>{expanded ? '▲' : '▼'}</span>
+            </button>
+            {!permissionGranted && 'Notification' in window && Notification.permission !== 'denied' && (
+              <button onClick={onRequestPermission} style={{
+                padding: '10px 12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: 'rgba(46,204,113,0.15)', color: '#2ecc71', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap'
+              }}>
+                Вкл. уведомления
+              </button>
+            )}
+          </div>
+          {expanded && (
+            <div style={{background: 'rgba(255,255,255,0.04)', borderRadius: 12, padding: 12, maxHeight: 300, overflowY: 'auto', border: '1px solid rgba(255,255,255,0.08)'}}>
+              {notifications.length === 0 ? (
+                <div style={{color: '#8892b0', fontSize: 13, textAlign: 'center', padding: 16}}>Нет уведомлений</div>
+              ) : (
+                <>
+                  <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: 8}}>
+                    <span style={{fontSize: 12, color: '#8892b0'}}>Последние бронирования</span>
+                    <button onClick={onDismissAll} style={{fontSize: 11, color: '#e74c3c', background: 'none', border: 'none', cursor: 'pointer'}}>Очистить</button>
+                  </div>
+                  {notifications.map(n => (
+                    <div key={n.id} style={{
+                      padding: '8px 10px', marginBottom: 4, borderRadius: 8,
+                      background: n.seen ? 'transparent' : 'rgba(74,144,226,0.08)',
+                      borderLeft: n.seen ? '3px solid transparent' : '3px solid #4A90E2'
+                    }}>
+                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                        <div style={{fontSize: 12, color: '#ccd6f6', lineHeight: 1.4}}>{n.text}</div>
+                        <span style={{fontSize: 10, color: '#8892b0', whiteSpace: 'nowrap', marginLeft: 8}}>{n.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function AdminApp() {
+      const [tab, setTab] = useState('bookings');
+      const [selectedChat, setSelectedChat] = useState(null);
+      const { notifications, newCount, clearNotifications, dismissAll, permissionGranted, setPermissionGranted } = useNotifications();
+
+      const requestPermission = () => {
+        if ('Notification' in window) {
+          Notification.requestPermission().then(p => { if (p === 'granted') setPermissionGranted(true); });
+        }
+      };
+
+      if (selectedChat) {
+        return <ChatScreen chat={selectedChat} onBack={() => setSelectedChat(null)} />;
+      }
+
+      return (
+        <>
+          <NotificationLog
+            notifications={notifications}
+            newCount={newCount}
+            onClear={clearNotifications}
+            onDismissAll={dismissAll}
+            permissionGranted={permissionGranted}
+            onRequestPermission={requestPermission}
+          />
+          {tab === 'bookings' && <BookingsScreen />}
+          {tab === 'chats' && <ChatsListScreen onSelectChat={setSelectedChat} />}
+          {tab === 'payments' && <PaymentsScreen />}
+          {tab === 'stats' && <StatsScreen />}
+          {tab === 'log' && <ActivityLogScreen />}
+          {tab === 'moderation' && <ModerationScreen />}
+          {tab === 'clients' && <ClientsScreen />}
+          {tab === 'profile' && <ProfileScreen />}
+
+          <nav className="nav">
+            <button className={`nav-item ${tab === 'bookings' ? 'active' : ''}`} onClick={() => setTab('bookings')}>
+              <span className="nav-icon">📋</span>
+              <span>Брони</span>
+            </button>
+            <button className={`nav-item ${tab === 'chats' ? 'active' : ''}`} onClick={() => setTab('chats')}>
+              <span className="nav-icon">💬</span>
+              <span>Чаты</span>
+            </button>
+            <button className={`nav-item ${tab === 'payments' ? 'active' : ''}`} onClick={() => setTab('payments')}>
+              <span className="nav-icon">💰</span>
+              <span>Оплата</span>
+            </button>
+            <button className={`nav-item ${tab === 'stats' ? 'active' : ''}`} onClick={() => setTab('stats')}>
+              <span className="nav-icon">📊</span>
+              <span>Стат.</span>
+            </button>
+            <button className={`nav-item ${tab === 'log' ? 'active' : ''}`} onClick={() => setTab('log')}>
+              <span className="nav-icon">📝</span>
+              <span>Лог</span>
+            </button>
+            <button className={`nav-item ${tab === 'moderation' ? 'active' : ''}`} onClick={() => setTab('moderation')}>
+              <span className="nav-icon">⚠</span>
+              <span>Отмены</span>
+            </button>
+            <button className={`nav-item ${tab === 'clients' ? 'active' : ''}`} onClick={() => setTab('clients')}>
+              <span className="nav-icon">👥</span>
+              <span>Клиенты</span>
+            </button>
+            <button className={`nav-item ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>
+              <span className="nav-icon">👤</span>
+              <span>Профиль</span>
+            </button>
+          </nav>
+        </>
+      );
+    }
+
+    function App() {
+      const { user, loading } = useAuth();
+
+      if (loading) {
+        return <div className="loading">Загрузка...</div>;
+      }
+
+      if (!user) {
+        return <AdminLoginScreen />;
+      }
+
+      return <AdminApp />;
+    }
+
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error('App error:', error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="container" style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', textAlign: 'center'}}>
+              <div style={{fontSize: 48, marginBottom: 20}}>!</div>
+              <h2 style={{marginBottom: 16}}>Что-то пошло не так</h2>
+              <p style={{color: '#8892b0', marginBottom: 24}}>Произошла ошибка при загрузке панели администратора</p>
+              <button className="btn btn-primary" style={{maxWidth: 200}} onClick={() => window.location.reload()}>
+                Перезагрузить
+              </button>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function Root() {
+      return (
+        <ErrorBoundary>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ErrorBoundary>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<Root />);
+  </script>
+</body>
+</html>
